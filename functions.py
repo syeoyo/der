@@ -12,10 +12,11 @@ def load_parameters(I, T, generation_data):
     P_RT = generate_rt_scenarios(S, randomness_level)
     K = np.full(I, 100)
     K0 = np.full(I, 10)
-    M = max(R.sum(axis=0).max(), K.sum())
+    M1 = np.maximum(R, K[:, None, None]).max()
+    M2 = max(R.sum(axis=0).max(), K.sum())
 
-    print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', M={M:.2f}")
-    return S, R, P_RT, K, K0, M
+    print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', M1={M1:.2f}, M2={M2:.2f}")
+    return S, R, P_RT, K, K0, M1, M2
 
 def load_generation_data(include_files=None, date_filter=None):
     if include_files is None:
