@@ -6,39 +6,40 @@ import numpy as np
 def only(I, T, S, R, P_DA, P_RT, P_PN, K, K0, M1):
     
     only = gp.Model("only")
-    # only.setParam("MIPGap", 1e-7)
+    only.setParam("MIPGap", 1e-7)
 
     x = only.addVars(I, T, vtype=GRB.CONTINUOUS, lb=0, name="x")
     yp = only.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_plus")
     ym = only.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_minus")
-    z = only.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="z")
+    z = only.addVars(I, T+1, S, vtype=GRB.CONTINUOUS, name="z")
     zc = only.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="z_charge")
     zd = only.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="z_discharge")
     zeta = only.addVars(I, T, S, vtype=GRB.BINARY, name="zeta")
     delta = only.addVars(I, T, S, vtype=GRB.BINARY, name="delta")
+    rho = only.addVars(I, T, S, vtype=GRB.BINARY, name="rho")
+
     only.update()
 
     obj = gp.quicksum(P_DA[t] * x[i, t] for i, t in product(range(I), range(T))) \
-        + gp.quicksum(1 / S * (P_RT[t, s] * yp[i, t, s] - P_PN[t] * ym[i, t, s])
-                      for i, t, s in product(range(I), range(T), range(S)))
+        + gp.quicksum(1 / S * (P_RT[t, s] * yp[i, t, s] - P_PN[t] * ym[i, t, s]) for i, t, s in product(range(I), range(T), range(S)))
+
     only.setObjective(obj, GRB.MAXIMIZE)
 
     for i, t, s in product(range(I), range(T), range(S)):
         only.addConstr(R[i, t, s] - x[i, t] == yp[i, t, s] - ym[i, t, s] + zc[i, t, s] - zd[i, t, s])
         only.addConstr(R[i, t, s] + zd[i, t, s] >= yp[i, t, s] + zc[i, t, s])
+        only.addConstr(z[i, t + 1, s] == z[i, t, s] + zc[i, t, s] - zd[i, t, s])
+        only.addConstr(zd[i, t, s] <= z[i, t, s])
+        only.addConstr(zc[i, t, s] <= K[i] - z[i, t, s])
+        only.addConstr(yp[i, t, s] <= M1 * rho[i, t, s])
+        only.addConstr(ym[i, t, s] <= M1 * (1 - rho[i, t, s]))
         only.addConstr(ym[i, t, s] <= M1 * delta[i, t, s])
         only.addConstr(zc[i, t, s] <= M1 * (1 - delta[i, t, s]))
         only.addConstr(zc[i, t, s] <= M1 * zeta[i, t, s])
         only.addConstr(zd[i, t, s] <= M1 * (1 - zeta[i, t, s]))
-        only.addConstr(z[i, t, s] <= K[i])
-        only.addConstr(z[i, t, s] >= 0)
 
     for i, s in product(range(I), range(S)):
-        only.addConstr(z[i, 0, s] == K0[i] + zc[i, 0, s] - zd[i, 0, s])
-        only.addConstr(zd[i, 0, s] <= K0[i])
-    for i, t, s in product(range(I), range(1, T), range(S)):
-        only.addConstr(z[i, t, s] == z[i, t - 1, s] + zc[i, t, s] - zd[i, t, s])
-        only.addConstr(z[i, t - 1, s] >= zd[i, t, s])
+        only.addConstr(z[i, 0, s] == K0[i])
 
     only.optimize()
 
