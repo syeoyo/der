@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=20
+    S=3
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -20,7 +20,8 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files=None, date_filter=None):
     if include_files is None:
-        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        include_files = ['1201.csv', '137.csv', '401.csv']
+        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
