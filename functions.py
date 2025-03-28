@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=3
+    S=20
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -20,9 +20,9 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files=None, date_filter=None):
     if include_files is None:
-        include_files = ['1201.csv', '137.csv', '401.csv']
+        # include_files = ['1201.csv', '137.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
@@ -413,4 +413,43 @@ def plot_daily_remuneration(*daily_remunerations, labels=None):
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))  # 오른쪽 바깥에 배치
     plt.tight_layout(rect=[0, 0, 1.11, 1])
+    plt.show()
+
+def plot_summary(model, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s=0):
+    T = len(P_DA)
+    S = P_RT.shape[1]
+
+    da_profit = sum(P_DA[t] * a_vals[t] for t in range(T))
+    rt_profit = sum(P_RT[t, s_] * bp_vals[t, s_] / S for t in range(T) for s_ in range(S))
+    pn_cost   = sum(P_PN[t]   * bm_vals[t, s_] / S for t in range(T) for s_ in range(S))
+    total_profit = da_profit + rt_profit - pn_cost
+
+    print(f"DA Profit      = {da_profit:.2f}")
+    print(f"RT Profit      = {rt_profit:.2f}")
+    print(f"Penalty Cost   = {pn_cost:.2f}")
+    print(f"Total Profit   = {total_profit:.2f}, Objective Val  = {model.ObjVal:.2f}")
+
+    hours = np.arange(T)
+    hours_g = np.arange(T + 1)
+
+    fig, axs = plt.subplots(1, 2, figsize=(16, 5))
+    total_commitment = np.sum(a_vals)
+    axs[0].plot(hours, a_vals, marker='o', linewidth=2, color='#0096EB', label=f"α (Total: {total_commitment:.2f})")
+    axs[0].set_title("Total Day-Ahead Commitment Over Time")
+    axs[0].set_xlabel("Hour")
+    axs[0].set_ylabel("Total x")
+    axs[0].set_ylim(0, 2000)
+    axs[0].legend()
+    axs[0].grid(True)
+
+    axs[1].step(hours_g, g_vals[:T+1, s], where='post', label=f"SoC (Scen {s})", color='#00821E', linewidth=2)
+    axs[1].set_title(f"Battery Charging/Discharging & SoC (Scenario {s})")
+    axs[1].set_xlabel("Hour")
+    axs[1].set_ylabel("Energy (kWh)")
+    axs[1].set_xticks(np.arange(T+1))
+    axs[1].set_ylim(-10, 1050)
+    axs[1].legend()
+    axs[1].grid(True)
+
+    plt.tight_layout()
     plt.show()
