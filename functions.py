@@ -20,9 +20,9 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files=None, date_filter=None):
     if include_files is None:
-        # include_files = ['1201.csv', '137.csv', '401.csv', '89.csv']
+        include_files = ['1201.csv', '137.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
@@ -415,7 +415,7 @@ def plot_daily_remuneration(*daily_remunerations, labels=None):
     plt.tight_layout(rect=[0, 0, 1.11, 1])
     plt.show()
 
-def plot_summary(model, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s=0):
+def plot_summary(model, K, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s=0):
     T = len(P_DA)
     S = P_RT.shape[1]
 
@@ -447,7 +447,7 @@ def plot_summary(model, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s=0)
     axs[1].set_xlabel("Hour")
     axs[1].set_ylabel("Energy (kWh)")
     axs[1].set_xticks(np.arange(T+1))
-    axs[1].set_ylim(-10, 1050)
+    axs[1].set_ylim(-10, sum(K)+30)
     axs[1].legend()
     axs[1].grid(True)
 
