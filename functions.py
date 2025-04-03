@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=20
+    S=10
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -18,9 +18,9 @@ def load_parameters(I, T, generation_data):
     print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', M1={M1:.2f}, M2={M2:.2f}")
     return S, R, P_RT, K, K0, M1, M2
 
-def load_generation_data(include_files=None, date_filter=None):
+def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
-        include_files = ['1201.csv', '524.csv', '89.csv']
+        include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
@@ -131,6 +131,7 @@ def generate_randomized_generation(I, T, S, data, randomness_level):
     noise_factors = np.random.uniform(low, high, size=(I, T, S))
 
     generation_r = np.expand_dims(data, axis=-1) * noise_factors
+    generation_r = np.round(generation_r).astype(int)
     
     print(f"📊 데이터 Shape: I={I}, T={T}, S={S}")
     return generation_r
