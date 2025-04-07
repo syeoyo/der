@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=10
+    S=30
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -20,8 +20,8 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
-        include_files = ['1201.csv', '401.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        # include_files = ['1201.csv', '401.csv', '89.csv']
+        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
@@ -93,7 +93,7 @@ def generate_rt_scenarios(S, randomness_level):
     end_of_day = start_of_day + pd.Timedelta(hours=23)
     nyc_rt = nyc_rt[(nyc_rt["Time Stamp"] >= start_of_day) & (nyc_rt["Time Stamp"] <= end_of_day)]
 
-    nyc_rt["Hour"] = nyc_rt["Time Stamp"].dt.floor("H")
+    nyc_rt["Hour"] = nyc_rt["Time Stamp"].dt.floor("h")
     hourly_avg = nyc_rt.groupby("Hour")["LBMP ($/MWHr)"].mean().reset_index()
     price_hourly = hourly_avg["LBMP ($/MWHr)"].to_numpy()
     T = len(price_hourly)
