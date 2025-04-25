@@ -16,8 +16,8 @@
 
 \maketitle
 
-\section{Original: Maximize Profit}
-\subsection{DER only}
+\section{Without Storage}
+\subsection{Disaggregation}
 \begin{subequations}
 \begin{align}
     \text{max} \quad & \sum_{t\in T}\left(P_t^{DA}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)y_{it}^{+}(\xi) - P_t^{PN}y_{it}^{-}(\xi)\right]\right) &\\
@@ -28,7 +28,7 @@
 \end{align}
 \end{subequations}
 
-\subsection{DER aggregation}
+\subsection{Aggregation}
 \begin{subequations}
 \begin{align}
     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_{t} + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{t}^{-}(\xi)\right]\right) &\\
@@ -39,7 +39,7 @@
 \end{align}
 \end{subequations}
 
-\subsection{DER settlement}
+\subsection{Settlement}
 \begin{subequations}
 \begin{align}
     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_t + \mathbb{E}\left[P_t^{RT}(\xi)\beta^+_{t}(\xi) - P_t^{PN}\beta^-_{t}(\xi)\right]\right) &\\
@@ -58,7 +58,41 @@
 \end{subequations}
 
 \newpage
-\section{Revised}
-\subsection{ver 1}
+\section{With Storage}
+
+\subsection{Disaggregation}
+\begin{subequations}
+    \begin{align}
+    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)y_{it}^{+}(\xi) - P_t^{PN}y_{it}^{-}(\xi)\right]\right)&\\    
+    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)\quad  \forall i, t &\\ 
+    &R_{it}(\xi) \geq y^+_{it}(\xi) \quad \forall i ,t &\\
+    &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) \quad \forall i, t &\\
+    &z^D_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
+    &z^C_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
+    &0 \leq z_{it}(\xi) \leq K_i \quad \forall i, t &\\
+    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) \quad \forall i, t &\\
+    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
+    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &
+    \end{align}
+\end{subequations}
+
+\subsection{Aggregation}
+\begin{subequations}
+    \begin{align}
+    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_t + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{t}^{-}(\xi))\right]\right)&\\   
+    \text{s.t.} \quad & \sum_{i \in I} R_{it}(\xi) - \alpha_t = \beta^+_t(\xi) - \beta^-_t(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
+    &\sum_{i\in I}R_{it}(\xi) \geq \beta_{t}^{+}(\xi) \quad \forall t &\\ 
+    &\gamma^D_t(\xi) \le \gamma_{t}(\xi) \quad \forall t &\\
+    &\gamma^C_t(\xi) \le \sum_{i \in I}K_i - \gamma_{t}(\xi) \quad \forall t &\\
+    &0 \leq \gamma_t(\xi) \leq \sum_{i \in I} K_i \quad \forall t &\\
+    &\gamma_{t+1}(\xi) = \gamma_{t}(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
+    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) \forall t &\\ 
+    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi)) \forall t &\\
+    &\gamma^C_t(\xi) \le M_2\lambda_t(\xi), \quad \gamma^D_t(\xi) \le M_2(1 - \lambda_t(\xi)) \quad \forall t &
+    \end{align}
+\end{subequations}
+
+\subsection{Settlement}
+
 
 \end{document}

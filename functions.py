@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=30
+    S=5
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -20,9 +20,9 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
-        # include_files = ['1201.csv', '401.csv', '89.csv']
+        include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv']
-        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
@@ -436,7 +436,7 @@ def plot_summary(model, K, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s
 
     fig, axs = plt.subplots(1, 2, figsize=(16, 5))
     total_commitment = np.sum(a_vals)
-    axs[0].plot(hours, a_vals, marker='o', linewidth=2, color='#6DE9FF', label=f"α (Total: {total_commitment:.2f})")
+    axs[0].bar(hours, a_vals, color='#6DE9FF', label=f"α (Total: {total_commitment:.2f})")
     axs[0].set_title("Total Day-Ahead Commitment Over Time")
     axs[0].set_xlabel("Hour")
     axs[0].set_ylabel("Total x")
@@ -452,7 +452,7 @@ def plot_summary(model, K, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s
     axs[1].set_ylim(-10, sum(K)+30)
     axs[1].legend()
     axs[1].grid(True, linestyle='--')
-    axs[1].fill_between(hours_g, g_vals[:T+1, s], alpha=0.6, step='post')
+    axs[1].fill_between(hours_g, g_vals[:T+1, s], alpha=0.3, step='post', color='#00FF88')
 
     plt.tight_layout()
     plt.show()
