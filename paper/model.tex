@@ -8,6 +8,7 @@
 \usepackage{lscape}
 \usepackage{graphicx}
 \usepackage{enumitem}
+\usepackage{mathabx}
 
 \title{DER Models}
 \author{Seohyun Jang}
@@ -86,13 +87,67 @@
     &\gamma^C_t(\xi) \le \sum_{i \in I}K_i - \gamma_{t}(\xi) \quad \forall t &\\
     &0 \leq \gamma_t(\xi) \leq \sum_{i \in I} K_i \quad \forall t &\\
     &\gamma_{t+1}(\xi) = \gamma_{t}(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
-    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) \forall t &\\ 
-    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi)) \forall t &\\
+    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) \quad \forall t &\\ 
+    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi)) \quad \forall t &\\
     &\gamma^C_t(\xi) \le M_2\lambda_t(\xi), \quad \gamma^D_t(\xi) \le M_2(1 - \lambda_t(\xi)) \quad \forall t &
     \end{align}
 \end{subequations}
 
-\subsection{Settlement}
+\newpage
 
+\subsection{Settlement}
+\begin{subequations}
+    \begin{align*}
+    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_t + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{t}^{-}(\xi))\right]\right)&\\   
+    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)\quad  \forall i, t &\\ 
+    &R_{it}(\xi) \geq y^+_{it}(\xi) \quad \forall i ,t &\\
+    &z^D_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
+    &z^C_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
+    &0 \leq z_{it}(\xi) \leq K_i \quad \forall i, t &\\
+    &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) \quad \forall i, t &\\
+    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) \quad \forall i, t &\\
+    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
+    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &\\
+    &e^+_{it}(\xi) = y^+_{it}(\xi) + \widehat{d_{y+}}(\xi) - \widecheck{d_{y+}}(\xi) &\\
+    % # set.addConstr(yp[i, t, s] >= ep[i, t, s])
+    &\widehat{d_{y+}}(\xi) \leq M_1 q^1_{it}(\xi), \quad \widecheck{d_{y+}}(\xi) \leq M_1 (1 - q^1_{it}(\xi)) &\\
+    &e^-_{it}(\xi) = y^-_{it}(\xi) + \widehat{d_{y-}}(\xi) - \widecheck{d_{y-}}(\xi) &\\
+    % set.addConstr(ym[i, t, s] >= em[i, t, s])
+    &\widehat{d_{y-}}(\xi) \leq M_1 q^2_{it}(\xi), \quad \widecheck{d_{y-}}(\xi) \leq M_1 (1 - q^2_{it}(\xi)) &\\
+    % set.addConstr(dym_p[i, t, s] <= M1 * q2[i, t, s])
+    % set.addConstr(dym_m[i, t, s] <= M1 * (1 - q2[i, t, s]))
+    &e^C_{it}(\xi) = z^C_{it}(\xi) + \widehat{d_{z^C}}(\xi) - \widecheck{d_{z^C}}(\xi) &\\
+    % # set.addConstr(zc[i, t, s] >= ec[i, t, s])
+    % set.addConstr(dzc_p[i, t, s] <= M1 * q3[i, t, s])
+    % set.addConstr(dzc_m[i, t, s] <= M1 * (1 - q3[i, t, s]))
+    % set.addConstr(ec[i, t, s] <= K[i] - z[i, t, s])
+    &e^D_{it}(\xi) = z^D_{it}(\xi) + \widehat{d_{z^D}}(\xi) - \widecheck{d_{z^D}}(\xi) &\\
+    % set.addConstr(dzd_p[i, t, s] <= M1 * q4[i, t, s])
+    % set.addConstr(dzd_m[i, t, s] <= M1 * (1 - q4[i, t, s]))
+    % set.addConstr(ed[i, t, s] <= z[i, t, s])
+    % # set.addConstr(zd[i, t, s] <= ed[i, t, s])
+    % set.addConstr(ep[i, t, s] <= M1 * q5[i, t, s])
+    % set.addConstr(em[i, t, s] <= M1 * (1 - q5[i, t, s]))
+    % set.addConstr(em[i, t, s] <= M1 * q6[i, t, s])
+    % set.addConstr(ec[i, t, s] <= M1 * (1 - q6[i, t, s]))
+    % set.addConstr(ec[i, t, s] <= M1 * q7[i, t, s])
+    % set.addConstr(ed[i, t, s] <= M1 * (1 - q7[i, t, s]))
+    % # set.addConstr(dp[i, t, s] == dyp_p[i, t, s] + dym_p[i, t, s] + dzc_p[i, t, s] + dzd_p[i, t, s])
+    % # set.addConstr(dm[i, t, s] == dyp_m[i, t, s] + dym_m[i, t, s] + dzc_m[i, t, s] + dzd_m[i, t, s])
+    % # set.addConstr(dp[i, t, s] <= M1 * q8[i, t, s])
+    % # set.addConstr(dm[i, t, s] <= M1 * (1 - q8[i, t, s]))
+    &\alpha_t = \sum_{i\in I}x_{it}, \quad \beta_t^+(\xi) = \sum_{i\in I}e^+_{it}(\xi), \quad \beta_t^-(\xi) = \sum_{i\in I}e^-_{it}(\xi)&\\
+    &\gamma_t(\xi) = \sum_{i\in I}z_{it}(\xi), \quad \gamma^C_t(\xi) = \sum_{i\in I}e^C_{it}(\xi), \quad \gamma^D_t(\xi) = \sum_{i\in I}e^D_{it}(\xi)&\\
+    & \sum_{i \in I} R_{it}(\xi) - \alpha_t = \beta^+_t(\xi) - \beta^-_t(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
+    &\sum_{i\in I}R_{it}(\xi) \geq \beta_{t}^{+}(\xi) \quad \forall t &\\ 
+    &\gamma^D_t(\xi) \le \gamma_{t}(\xi) \quad \forall t &\\
+    &\gamma^C_t(\xi) \le \sum_{i \in I}K_i - \gamma_{t}(\xi) \quad \forall t &\\
+    &0 \leq \gamma_t(\xi) \leq \sum_{i \in I} K_i \quad \forall t &\\
+    &\gamma_{t+1}(\xi) = \gamma_{t}(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
+    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) \quad \forall t &\\ 
+    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi))\quad \forall t &\\
+    &\gamma^C_t(\xi) \le M_2\lambda_t(\xi), \quad \gamma^D_t(\xi) \le M_2(1 - \lambda_t(\xi)) \quad \forall t &
+    \end{align*}
+\end{subequations}
 
 \end{document}
