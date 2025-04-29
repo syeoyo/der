@@ -93,10 +93,9 @@
     \end{align}
 \end{subequations}
 
-\newpage
-
 \subsection{Settlement}
 \begin{subequations}
+    \small
     \begin{align*}
     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_t + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{t}^{-}(\xi))\right]\right)&\\   
     &&\\
@@ -133,7 +132,13 @@
     &\gamma_{t+1}(\xi) = \gamma_{t}(\xi) + \gamma^C_t(\xi) - \gamma^D_t(\xi) \quad \forall t &\\
     &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) \quad \forall t &\\ 
     &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi))\quad \forall t &\\
-    &\gamma^C_t(\xi) \le M_2\lambda_t(\xi), \quad \gamma^D_t(\xi) \le M_2(1 - \lambda_t(\xi)) \quad \forall t &
+    &\gamma^C_t(\xi) \le M_2\lambda_t(\xi), \quad \gamma^D_t(\xi) \le M_2(1 - \lambda_t(\xi)) \quad \forall t &\\
+    &&\\
+    &\sum_{i \in I}\widehat{d^{C}_{it}}(\xi) \leq \sum_{i \in I}y^-_{it}(\xi)&\\
+    &\left(K_i - z_{it}(\xi) - z^c_{it}(\xi)\right) - \left(d^+_{it}(\xi) - \sum_{i \in I}y^-_{it}(\xi)\right) \leq M_1(1-q^6_{it}(\xi))-\epsilon&\\
+    & \left(d^+_{it}(\xi) - \sum_{i \in I}y^-_{it}(\xi) \right) - e^C_{it}(\xi) \leq M_1 q^6_{it}(\xi)&\\
+    &\left(d^+_{it}(\xi) - \sum_{i \in I}y^-_{it}(\xi) \right) - \left(K_i - z_{it}(\xi)\right) \leq M_1(1-q^7_{it}(\xi))-\epsilon &\\
+    &\left(K_i - z_{it}(\xi)\right) - e^C_{it}(\xi) \leq M_1 q^7_{it}(\xi)&
     \end{align*}
 \end{subequations}
 
