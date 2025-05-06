@@ -11,7 +11,7 @@ def load_parameters(I, T, generation_data):
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
     K = np.full(I, 100)
-    K0 = np.full(I, 10)
+    K0 = np.full(I, 0)
     M1 = np.maximum(R, K[:, None, None]).max()
     M2 = max(R.sum(axis=0).max(), K.sum())
 
@@ -20,9 +20,9 @@ def load_parameters(I, T, generation_data):
 
 def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
-        include_files = ['1201.csv', '89.csv']
+        # include_files = ['1201.csv', '89.csv']
         # include_files = ['1201.csv', '401.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
+        include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
         # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
