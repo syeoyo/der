@@ -176,38 +176,6 @@
     &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) &\\
     &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &\\
     &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
-    &&\\
-    &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d^{+}_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - d^{-}_{it}(\xi) &\\
-    &e^C_{it}(\xi) = z^C_{it}(\xi) - \sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi) + \widecheck{d^{C}_{it}}(\xi), \quad e^D_{it}(\xi) = z^D_{it}(\xi) - \widehat{d^{D}_{it}}(\xi) + \sum_{j \in I}\widecheck{d^{D}_{ijt}}(\xi) &\\
-    &e^C_{it}(\xi) \leq K_i - z_{it}(\xi), \quad e^D_{it}(\xi) \leq z_{it}(\xi), \quad z_{i,t+1}(\xi) = z_{it}(\xi) + e^C_{it}(\xi) - e^D_{it}(\xi) &\\
-    &&\\
-    &\sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi) \leq M_1 q^1_{it}(\xi), \quad \widecheck{d^{C}_{it}}(\xi) \leq M_1 (1 - q^1_{it}(\xi)) &\\
-    &\widehat{d^{D}_{it}}(\xi) \leq M_1 q^2_{it}(\xi), \quad \sum_{j \in I}\widecheck{d^{D}_{ijt}}(\xi) \leq M_1 (1 - q^2_{it}(\xi)) &\\
-    &e^{+}_{it}(\xi) \leq M_1 q^3_{it}(\xi), \quad e^{-}_{it}(\xi) \leq M_1 (1 - q^3_{it}(\xi)) &\\
-    &e^{-}_{it}(\xi) \leq M_1 q^4_{it}(\xi), \quad e^{C}_{it}(\xi) \leq M_1 (1 - q^4_{it}(\xi)) &\\
-    &e^{C}_{it}(\xi) \leq M_1 q^5_{it}(\xi), \quad e^{D}_{it}(\xi) \leq M_1 (1 - q^5_{it}(\xi)) &\\
-    &&\\
-    &y^+_{it}(\xi) \geq \sum_{j \in I}d^+_{ijt}(\xi), \quad y^-_{it}(\xi) \geq d^-_{it}(\xi), \quad z^C_{it}(\xi) \geq \sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi), \quad z^D_{it}(\xi) \geq \widehat{d^{D}_{it}}(\xi)&\\
-    &z^D_{it}(\xi) + \widecheck{d^{D}_{iit}}(\xi) \geq \text{min} \{y^-_{it}(\xi), z_{it}(\xi) \} &\\
-    &\sum_{j \in I}d^+_{ijt}(\xi) - \sum_{j \in I}d^+_{jit}(\xi) \leq d^+_{iit}(\xi), \quad d^+_{iit}(\xi) \geq \widecheck{d^{C}_{it}}(\xi) + \widehat{d^{D}_{it}}(\xi) &\\
-    &d^-_{it}(\xi) \geq \left( d^+_{jit}(\xi) + \widehat{d^{C}_{jit}}(\xi) + \widecheck{d^{D}_{jit}}(\xi)\right) + \left( \widehat{d^{C}_{iit}}(\xi) + \widecheck{d^{D}_{iit}}(\xi) \right) \quad \forall j \in I, j \neq i &\\
-    &&\\
-    &\alpha_t = \sum_{i\in I}x_{it}, \quad \beta_t^+(\xi) = \sum_{i\in I}e^+_{it}(\xi), \quad \beta_t^-(\xi) = \sum_{i\in I}e^-_{it}(\xi), \quad \gamma^C_t(\xi) = \sum_{i\in I}e^C_{it}(\xi), \quad \gamma^D_t(\xi) = \sum_{i\in I}e^D_{it}(\xi)&\\
-    &\sum_{i \in I} R_{it}(\xi) - \alpha_t = \beta^+_t(\xi) - \beta^-_t(\xi) + \gamma^C_{t}(\xi) - \gamma^D_{t}(\xi), \quad \sum_{i\in I}R_{it}(\xi) \geq \beta_{t}^{+}(\xi)&\\ 
-    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) &\\
-    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi)) &
-\end{align*}
-
-\newpage
-
-\subsection{RT Storage Dispatching with aggregation (2)}
-\begin{align*}
-    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \alpha_{t} + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{it}^{-}(\xi)\right]\right)&\\    
-    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi), \quad R_{it}(\xi) \geq y^+_{it}(\xi)&\\
-    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) &\\
-    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) &\\
-    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &\\
-    &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
     &&\\ 
     &&\\
     &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d^{+}_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - \sum_{j \in I}d^{-}_{ijt}(\xi) &\\
@@ -218,7 +186,6 @@
     &\sum_{i \in I}y^-_{it}(\xi) \geq \sum_{j \in I}\widehat{d^{C}_{jit}}(\xi), \quad \sum_{i \in I}y^-_{it}(\xi) \geq \sum_{j \in I}\widecheck{d^{D}_{jit}}(\xi)&\\
     &\sum_{j \in I}d^+_{ijt}(\xi) - \sum_{j \in I, j \neq i}d^+_{jit}(\xi) = d^+_{iit}(\xi) &\\
     &d^+_{iit}(\xi) \geq \widecheck{d^{C}_{iit}}(\xi) + \widehat{d^{D}_{iit}}(\xi) &\\
-    &e^C_{it}(\xi) \geq \text{min} \{d^+_{iit}(\xi) - \widehat{d^{D}_{iit}}(\xi), K_i - z_{it}(\xi) \} ??&\\
     &\widecheck{d^C_{iit}}(\xi) \geq \text{min} \{d^+_{iit}(\xi) - \widehat{d^{D}_{iit}}(\xi), K_i - z_{it}(\xi) - z^C_{it}(\xi) \} &\\
     % &\widecheck{d^{C}_{ijt}}(\xi) = 0, \quad \widehat{d^{D}_{ijt}}(\xi) = 0 \quad \forall j \in I, j \neq i&\\
     &d^-_{jit}(\xi) \geq d^+_{jit}(\xi) + \widehat{d^{C}_{jit}}(\xi) + \widecheck{d^{D}_{jit}}(\xi) \quad \forall j \in I, j \neq i &\\
@@ -240,19 +207,55 @@
 
 \newpage
 
+\subsection{RT Storage Dispatching with aggregation (2)}
+\begin{align*}
+    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \alpha_{t} + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{it}^{-}(\xi)\right]\right)&\\    
+    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi), \quad R_{it}(\xi) \geq y^+_{it}(\xi)&\\
+    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) &\\
+    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) &\\
+    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &\\
+    &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
+    &&\\ 
+    &&\\
+    &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d^{+}_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - d^{-}_{it}(\xi) &\\
+    &e^C_{it}(\xi) = z^C_{it}(\xi) - \sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi) + \widecheck{d^{C}_{it}}(\xi), \quad e^D_{it}(\xi) = z^D_{it}(\xi) - \widehat{d^{D}_{it}}(\xi) + \sum_{j \in I}\widecheck{d^{D}_{ijt}}(\xi) &\\
+    &e^C_{it}(\xi) \leq K_i - z_{it}(\xi), \quad e^D_{it}(\xi) \leq z_{it}(\xi), \quad z_{i,t+1}(\xi) = z_{it}(\xi) + e^C_{it}(\xi) - e^D_{it}(\xi) &\\
+    &&\\
+    &y^+_{it}(\xi) \geq \sum_{j \in I}d^+_{ijt}(\xi), \quad y^-_{it}(\xi) \geq d^{-}_{it}(\xi), \quad z^C_{it}(\xi) \geq \sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi), \quad z^D_{it}(\xi) \geq \widehat{d^{D}_{it}}(\xi)&\\
+    &\sum_{i \in I}y^-_{it}(\xi) \geq \sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi), \quad \sum_{i \in I}y^-_{it}(\xi) \geq \sum_{j \in I}\widecheck{d^{D}_{ijt}}(\xi) ??&\\
+    &y^-_{it}(\xi) \geq d^+_{ijt}(\xi) + \widehat{d^{C}_{ijt}}(\xi) + \widecheck{d^{D}_{ijt}}(\xi) \quad \left(\forall j \in I, j \neq i \right) &\\
+    &y^-_{it}(\xi) \geq \widehat{d^{C}_{iit}}(\xi) + \widecheck{d^{D}_{iit}}(\xi)&\\
+    &e^D_{it}(\xi) \geq \text{min} \{y^-_{it}(\xi), z_{it}(\xi) \}&\\
+    &\widecheck{d^C_{it}}(\xi) \geq \text{min} \{d^+_{iit}(\xi) - \widehat{d^{D}_{it}}(\xi), K_i - z_{it}(\xi) - z^C_{it}(\xi) \} ??&\\
+    &\sum_{j \in I}d^+_{ijt}(\xi) - \sum_{j \in I, j \neq i} d^+_{jit}(\xi) = d^+_{iit}(\xi) &\\
+    &&\\ 
+    &&\\
+    &\sum_{j \in I}\widehat{d^{C}_{ijt}}(\xi) \leq M_1 q^1_{it}(\xi), \quad \widecheck{d^{C}_{it}}(\xi) \leq M_1 (1 - q^1_{it}(\xi)) &\\
+    &\widehat{d^{D}_{it}}(\xi) \leq M_1 q^2_{it}(\xi), \quad \sum_{j \in I}\widecheck{d^{D}_{ijt}}(\xi) \leq M_1 (1 - q^2_{it}(\xi)) &\\
+    &e^{+}_{it}(\xi) \leq M_1 q^3_{it}(\xi), \quad e^{-}_{it}(\xi) \leq M_1 (1 - q^3_{it}(\xi)) &\\
+    &e^{-}_{it}(\xi) \leq M_1 q^4_{it}(\xi), \quad e^{C}_{it}(\xi) \leq M_1 (1 - q^4_{it}(\xi)) &\\
+    &e^{C}_{it}(\xi) \leq M_1 q^5_{it}(\xi), \quad e^{D}_{it}(\xi) \leq M_1 (1 - q^5_{it}(\xi)) &\\
+    &&\\ 
+    &&\\
+    &\alpha_t = \sum_{i\in I}x_{it}, \quad \beta_t^+(\xi) = \sum_{i\in I}e^+_{it}(\xi), \quad \beta_t^-(\xi) = \sum_{i\in I}e^-_{it}(\xi), \quad \gamma^C_t(\xi) = \sum_{i\in I}e^C_{it}(\xi), \quad \gamma^D_t(\xi) = \sum_{i\in I}e^D_{it}(\xi)&\\
+    &\sum_{i \in I} R_{it}(\xi) - \alpha_t = \beta^+_t(\xi) - \beta^-_t(\xi) + \gamma^C_{t}(\xi) - \gamma^D_{t}(\xi), \quad \sum_{i\in I}R_{it}(\xi) \geq \beta_{t}^{+}(\xi)&\\ 
+    &\beta^+_t(\xi) \le M_2 \mu_t(\xi), \quad \beta^-_t(\xi) \le M_2 (1 - \mu_t(\xi)) &\\
+    &\beta^-_t(\xi) \le M_2 \eta_t(\xi), \quad \gamma^C_t(\xi) \le M_2 (1 - \eta_t(\xi)) &
+\end{align*}
+
 \subsection{DA + RT Storage Dispatching: for each i}
 \begin{subequations}
     \begin{align}
     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)y_{it}^{+}(\xi) - P_t^{PN}y_{it}^{-}(\xi)\right]\right)&\\    
-    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)\quad  \forall i, t &\\ 
+    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + zc_{it}(\xi) - zd_{it}(\xi)\quad  \forall i, t &\\ 
     &R_{it}(\xi) \geq y^+_{it}(\xi) \quad \forall i ,t &\\
-    &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) \quad \forall i, t &\\
-    &z^D_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
-    &z^C_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
+    &z_{i,t+1}(\xi) = z_{it}(\xi) + zc_{it}(\xi) - zd_{it}(\xi) \quad \forall i, t &\\
+    &zd_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
+    &zc_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
     &0 \leq z_{it}(\xi) \leq K_i \quad \forall i, t &\\
     &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) \quad \forall i, t &\\
-    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
-    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &
+    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad zc_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
+    &zc_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad zd_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &
     \end{align}
 \end{subequations}
 
