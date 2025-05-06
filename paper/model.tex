@@ -244,35 +244,26 @@
 \end{align*}
 
 \subsection{DA + RT Storage Dispatching: for each i}
+
 \begin{subequations}
     \begin{align}
     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)y_{it}^{+}(\xi) - P_t^{PN}y_{it}^{-}(\xi)\right]\right)&\\    
-    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + zc_{it}(\xi) - zd_{it}(\xi)\quad  \forall i, t &\\ 
-    &R_{it}(\xi) \geq y^+_{it}(\xi) \quad \forall i ,t &\\
-    &z_{i,t+1}(\xi) = z_{it}(\xi) + zc_{it}(\xi) - zd_{it}(\xi) \quad \forall i, t &\\
-    &zd_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
-    &zc_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
-    &0 \leq z_{it}(\xi) \leq K_i \quad \forall i, t &\\
-    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) \quad \forall i, t &\\
-    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad zc_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
-    &zc_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad zd_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &
+    \text{s.t.} \quad &x_{it} + zd^{DA}_{it} - zc^{DA}_{it} \leq / = \widetilde{R_{it}}&\\
+    &zc^{DA}_{it} \leq K_i - z_{it}(\xi), \quad zd^{DA}_{it} \leq z_{it}(\xi)&\\
+    &zc^{DA}_{it} \leq M_1 \mu_{it}, \quad zd^{DA}_{it} \leq M_1 (1 - \mu_{it}) &\\
+    &--&\\
+    &R_{it}(\xi) - x_{it} - zc^{DA}_{it} + zd^{DA}_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + zc^{RT}_{it}(\xi) - zd^{RT}_{it}(\xi)&\\ 
+    &R_{it}(\xi) \geq y^+_{it}(\xi) &\\
+    &zd^{RT}_{it}(\xi) \leq z_{it}(\xi) - zd^{DA}_{it}(\xi) + zc^{DA}_{it}(\xi)&\\
+    &zc^{RT}_{it}(\xi) \leq K_i - z_{it}(\xi) + zd^{DA}_{it}(\xi) - zc^{DA}_{it}(\xi)&\\
+    &0 \leq z_{it}(\xi) \leq K_i&\\
+    &z_{i,t+1}(\xi) = z_{it}(\xi) + zc^{DA}_{it} - zd^{DA}_{it} + zc^{RT}_{it}(\xi) - zd^{RT}_{it}(\xi) &\\
+    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi))  &\\
+    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad zc^{RT}_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi))&\\
+    &zc^{RT}_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad zd^{RT}_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &
     \end{align}
 \end{subequations}
 
 \subsection{DA + RT Storage Dispatching with aggregation}
-\begin{subequations}
-    \begin{align}
-    \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)y_{it}^{+}(\xi) - P_t^{PN}y_{it}^{-}(\xi)\right]\right)&\\    
-    \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)\quad  \forall i, t &\\ 
-    &R_{it}(\xi) \geq y^+_{it}(\xi) \quad \forall i ,t &\\
-    &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) \quad \forall i, t &\\
-    &z^D_{it}(\xi) \le z_{it}(\xi) \quad \forall i, t &\\
-    &z^C_{it}(\xi) \le K_i-z_{it}(\xi) \quad \forall i, t &\\
-    &0 \leq z_{it}(\xi) \leq K_i \quad \forall i, t &\\
-    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) \quad \forall i, t &\\
-    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) \quad \forall i, t &\\
-    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) \quad \forall i, t &
-    \end{align}
-\end{subequations}
 
 \end{document}
