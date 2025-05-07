@@ -69,9 +69,9 @@
     &R_{it}(\xi) \geq y^+_{it}(\xi) &\\
     &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) \quad \forall i, t &\\
     &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
-    &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) &\\
-    &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) &\\
-    &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &
+    &y^+_{it}(\xi) \leq M_1 \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \phi^1_{it}(\xi)) &\\
+        &y^-_{it}(\xi) \leq M_1 \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \phi^2_{it}(\xi)) &\\
+        &z^C_{it}(\xi) \leq M_1 \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \phi^3_{it}(\xi)) &
     \end{align}
 \end{subequations}
 
@@ -82,13 +82,14 @@
         &&\\   
         \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
         & R_{it}(\xi) \geq y^+_{it}(\xi)&\\
-        &y^+_{it}(\xi) \leq M_1 \rho_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \rho_{it}(\xi)) &\\
-        &y^-_{it}(\xi) \leq M_1 \delta_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \delta_{it}(\xi)) &\\
-        &z^C_{it}(\xi) \leq M_1 \zeta_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \zeta_{it}(\xi)) &\\
-        &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
         &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
-        &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - \sum_{j \in I}d_{jit}(\xi) &\\
-        &d_{iit}(\xi) = 0&
+        &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
+        &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - \sum_{j \in I}d_{jit}(\xi)&\\
+        &d_{iit}(\xi) = 0&\\
+        &y^+_{it}(\xi) \leq M_1 \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \phi^1_{it}(\xi)) &\\
+        &y^-_{it}(\xi) \leq M_1 \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \phi^2_{it}(\xi)) &\\
+        &z^C_{it}(\xi) \leq M_1 \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \phi^3_{it}(\xi)) &\\
+        &\sum_{i \in I}e^+_{it}(\xi) \leq M_2 \phi^4_{it}(\xi), \quad \sum_{i \in I}e^-_{it}(\xi) \leq M_2 (1 - \phi^4_{it}(\xi))&
     \end{align}
 \end{subequations}
 
