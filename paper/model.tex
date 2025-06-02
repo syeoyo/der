@@ -109,35 +109,35 @@
 
 \newpage
 \section{Individual}
-\subsection{Same Internal Price}
-\begin{subequations}
-    \begin{align}
-        \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN} \cdot y^-_{it}(\xi) + \rho_t(d) \cdot \left(d^+_{it}(\xi) - d^-_{it}(\xi)\right)\right]\right)&\\   
-        \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) + d^+_{it}(\xi) - d^-_{it}(\xi)&\\
-        & R_{it}(\xi) \geq y^+_{it}(\xi) + d^+_{it}(\xi)&\\
-        &y^-_{it}(\xi) \geq d^-_{it}(\xi)&\\
-        &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
-        &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
-        &y^+_{it}(\xi) \leq M \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M (1 - \phi^1_{it}(\xi)) &\\
-        &y^-_{it}(\xi) \leq M \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M (1 - \phi^2_{it}(\xi)) &\\
-        &z^C_{it}(\xi) \leq M \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M (1 - \phi^3_{it}(\xi)) &\\
-        &d^+_{it}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^4_{t}(\xi))&
-    \end{align}
-\end{subequations}
+% \subsection{Same Internal Price}
+% \begin{subequations}
+%     \begin{align}
+%         \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \cdot x_{t} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{t}(\xi) - P_t^{PN} \cdot y^-_{t}(\xi) + \rho_t(d) \cdot \left(d^+_{t}(\xi) - d^-_{t}(\xi)\right)\right]\right)&\\   
+%         \text{s.t.} \quad &R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) + d^+_{t}(\xi) - d^-_{t}(\xi)&\\
+%         & R_{t}(\xi) \geq y^+_t(\xi) + d^+_{it}(\xi)&\\
+%         & x_{t} - R_{t}(\xi) \geq y^-_{t}(\xi) + d^-_{t}(\xi)&\\
+%         &z_{t+1}(\xi) = z_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi)&\\
+%         &z^D_{t}(\xi) \le z_{t}(\xi), \quad z^C_{t}(\xi) \le K - z_{t}(\xi), \quad 0 \leq z_{t}(\xi) \leq K &\\
+%         &y^+_{t}(\xi) \leq M \phi^1_{t}(\xi), \quad y^-_{t}(\xi) \leq M (1 - \phi^1_{t}(\xi)) &\\
+%         &y^-_{t}(\xi) \leq M \phi^2_{t}(\xi), \quad z^C_{t}(\xi) \leq M (1 - \phi^2_{t}(\xi)) &\\
+%         &z^C_{t}(\xi) \leq M \phi^3_{t}(\xi), \quad z^D_{t}(\xi) \leq M (1 - \phi^3_{t}(\xi)) &\\
+%         &d^+_{t}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^4_{t}(\xi))&
+%     \end{align}
+% \end{subequations}
 
 \subsection{Different Internal Price}
 \begin{subequations}
     \begin{align}
-        \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN} \cdot y^-_{it}(\xi) + \rho^+_t(d) \cdot d^+_{it}(\xi) - \rho^-_t(d) \cdot d^-_{it}(\xi)\right]\right)&\\   
-        \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) + d^+_{it}(\xi) - d^-_{it}(\xi)&\\
-        & R_{it}(\xi) \geq y^+_{it}(\xi) + d^+_{it}(\xi)&\\
-        &y^-_{it}(\xi) \geq d^-_{it}(\xi)&\\
-        &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
-        &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
-        &y^+_{it}(\xi) \leq M \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M (1 - \phi^1_{it}(\xi)) &\\
-        &y^-_{it}(\xi) \leq M \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M (1 - \phi^2_{it}(\xi)) &\\
-        &z^C_{it}(\xi) \leq M \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M (1 - \phi^3_{it}(\xi)) &\\
-        &d^+_{it}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^4_{t}(\xi))&
+        \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \cdot x_{t} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{t}(\xi) - P_t^{PN} \cdot y^-_{t}(\xi) + \rho^+_t(d) \cdot d^+_{t}(\xi) - \rho^-_t(d) \cdot d^-_{t}(\xi)\right]\right)&\\   
+        \text{s.t.} \quad &R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + d^+_{t}(\xi) - d^-_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) &\\
+        & R_{t}(\xi) \geq y^+_t(\xi) + d^+_{it}(\xi)&\\
+        & x_{t} - R_{t}(\xi) \geq y^-_{t}(\xi) + d^-_{t}(\xi)&\\
+        &z_{t+1}(\xi) = z_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi)&\\
+        &z^D_{t}(\xi) \le z_{t}(\xi), \quad z^C_{t}(\xi) \le K - z_{t}(\xi), \quad 0 \leq z_{t}(\xi) \leq K &\\
+        &y^+_{t}(\xi) \leq M \phi^1_{t}(\xi), \quad y^-_{t}(\xi) \leq M (1 - \phi^1_{t}(\xi)) &\\
+        &y^-_{t}(\xi) \leq M \phi^2_{t}(\xi), \quad z^C_{t}(\xi) \leq M (1 - \phi^2_{t}(\xi)) &\\
+        &z^C_{t}(\xi) \leq M \phi^3_{t}(\xi), \quad z^D_{t}(\xi) \leq M (1 - \phi^3_{t}(\xi)) &\\
+        &d^+_{t}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^4_{t}(\xi))&
     \end{align}
 \end{subequations}
 % \subsection{Settlement}
