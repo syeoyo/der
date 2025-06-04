@@ -134,17 +134,17 @@
         + \mathbb{E} \Big[ P_t^{RT}(\xi) \cdot y_t^+(\xi) - P_t^{PN} \cdot y_t^-(\xi) & \notag \\
         &\quad + \sum_{b^+ \in B^+} \rho^+_{t,b^+} \cdot (w^+_{t,b^+} + u^+_{t,b^+} \cdot d^{\min+}_{t,b^+}) 
         - \sum_{b^- \in B^-} \rho^-_{t,b^-} \cdot (w^-_{t,b^-} + u^-_{t,b^-} \cdot d^{\min-}_{t,b^-}) \Big] \Bigg) & \\
-        &&\\ \notag
+        &&\notag\\
         \text{s.t.} \quad & d^{+}_{t} = \sum_{b^+ \in B^+} (w^+_{t,b^+} + u^+_{t,b^+} \cdot d^{\min+}_{t,b^+})& \\
         & 0 \leq w^+_{t,b^+} \leq u^+_{t,b^+} \cdot w^{\max+}_{t,b^+}&\\
         & \sum_{b^+ \in B^+} u^+_{t,b^+} = 1 &\\
-        &&\\ \notag
+        &&\notag\\
         & d^{-}_{t} = \sum_{b^- \in B^-} (w^-_{t,b^-} + u^-_{t,b^-} \cdot d^{\min-}_{t,b^-})&\\
         & 0 \leq w^-_{t,b^-} \leq u^-_{t,b^-} \cdot w^{\max-}_{t,b^-}&\\
         & \sum_{b^- \in B^-} u^-_{t,b^-} = 1 &\\
-        &&\\ \notag
-        & R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + d^+_{t}(\xi) - d^-_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \\
-        & R_{t}(\xi) \geq y^+_t(\xi) + d^+_{t}(\xi) + z^C_{t}(\xi) & \\
+        &&\notag\\
+        & R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + d^+_{t}(\xi) -  d^-_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \\
+        & R_{t}(\xi) + z^D_{t}(\xi) \geq y^+_t(\xi) + d^+_{t}(\xi) + z^C_{t}(\xi) & \\
         % & x_{t} - R_{t}(\xi) \geq y^-_{t}(\xi) + d^-_{t}(\xi) & \\
         & z_{t+1}(\xi) = z_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \\
         & z^D_{t}(\xi) \le z_{t}(\xi), \quad z^C_{t}(\xi) \le K - z_{t}(\xi), \quad 0 \leq z_{t}(\xi) \leq K & \\
