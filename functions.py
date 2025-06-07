@@ -23,8 +23,8 @@ def load_generation_data(include_files = None, date_filter = None):
         # include_files = ['1201.csv', '89.csv']
         # include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
-        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/Documents/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
