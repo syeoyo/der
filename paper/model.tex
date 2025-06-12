@@ -126,34 +126,33 @@
     \end{align}
 \end{subequations}
 
-\subsection{Different Internal Price (Piecewise-Linear)}
+\subsection{Different Internal Price (Stepwise-Linear)}
 
 \begin{subequations}
     \begin{align}
         \text{max} \quad & \sum_{t\in T} \Bigg( P_t^{DA} \cdot x_t 
         + \mathbb{E} \Big[ P_t^{RT}(\xi) \cdot y_t^+(\xi) - P_t^{PN} \cdot y_t^-(\xi) & \notag \\
-        &\quad + \sum_{b^+ \in B^+} \rho^+_{t,b^+} \cdot (w^+_{t,b^+} + u^+_{t,b^+} \cdot d^{\min+}_{t,b^+}) 
-        - \sum_{b^- \in B^-} \rho^-_{t,b^-} \cdot (w^-_{t,b^-} + u^-_{t,b^-} \cdot d^{\min-}_{t,b^-}) \Big] \Bigg) & \\
+        &\quad + \sum_{b^+ \in B^+_t} \rho^+_{t,b^+} \cdot (w^+_{t,b^+}(\xi) + u^+_{t,b^+}(\xi) \cdot D^{\min+}_{t,b^+}) 
+        - \sum_{b^- \in B^-_t} \rho^-_{t,b^-} \cdot (w^-_{t,b^-}(\xi) + u^-_{t,b^-}(\xi) \cdot D^{\min-}_{t,b^-}) \Big] \Bigg) & \\
         &&\notag\\
-        \text{s.t.} \quad & d^{+}_{t} = \sum_{b^+ \in B^+} (w^+_{t,b^+} + u^+_{t,b^+} \cdot d^{\min+}_{t,b^+})& \\
-        & 0 \leq w^+_{t,b^+} \leq u^+_{t,b^+} \cdot w^{\max+}_{t,b^+}&\\
-        & \sum_{b^+ \in B^+} u^+_{t,b^+} = 1 &\\
+        \text{s.t.} \quad & d^{+}_{t}(\xi) = \sum_{b^+ \in B^+_t} (w^+_{t,b^+}(\xi) + u^+_{t,b^+}(\xi) \cdot D^{\min+}_{t,b^+})& \forall t \\
+        & 0 \leq w^+_{t,b^+}(\xi) \leq u^+_{t,b^+}(\xi) \cdot W^{\max+}_{t,b^+}&\forall t, b^+\\
+        & \sum_{b^+ \in B^+_t} u^+_{t,b^+}(\xi) \leq 1 &\forall t\\
         &&\notag\\
-        & d^{-}_{t} = \sum_{b^- \in B^-} (w^-_{t,b^-} + u^-_{t,b^-} \cdot d^{\min-}_{t,b^-})&\\
-        & 0 \leq w^-_{t,b^-} \leq u^-_{t,b^-} \cdot w^{\max-}_{t,b^-}&\\
-        & \sum_{b^- \in B^-} u^-_{t,b^-} = 1 &\\
+        & d^{-}_{t}(\xi) = \sum_{b^- \in B^-_t} (w^-_{t,b^-}(\xi) + u^-_{t,b^-}(\xi) \cdot D^{\min-}_{t,b^-})&\forall t\\
+        & 0 \leq w^-_{t,b^-}(\xi) \leq u^-_{t,b^-}(\xi) \cdot W^{\max-}_{t,b^-}&\forall t, b^-\\
+        & \sum_{b^- \in B^-_t} u^-_{t,b^-}(\xi) \leq 1 & \forall t\\
         &&\notag\\
-        & R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + d^+_{t}(\xi) -  d^-_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \\
-        & R_{t}(\xi) + z^D_{t}(\xi) \geq y^+_t(\xi) + d^+_{t}(\xi) + z^C_{t}(\xi) & \\
-        % & x_{t} - R_{t}(\xi) \geq y^-_{t}(\xi) + d^-_{t}(\xi) & \\
-        & z_{t+1}(\xi) = z_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \\
-        & z^D_{t}(\xi) \le z_{t}(\xi), \quad z^C_{t}(\xi) \le K - z_{t}(\xi), \quad 0 \leq z_{t}(\xi) \leq K & \\
-        & y^+_{t}(\xi) \leq M \phi^1_{t}(\xi), \quad y^-_{t}(\xi) \leq M (1 - \phi^1_{t}(\xi)) & \\
-        & y^-_{t}(\xi) \leq M \phi^2_{t}(\xi), \quad z^C_{t}(\xi) \leq M (1 - \phi^2_{t}(\xi)) & \\
-        & z^C_{t}(\xi) \leq M \phi^3_{t}(\xi), \quad z^D_{t}(\xi) \leq M (1 - \phi^3_{t}(\xi)) & \\
-        & d^+_{t}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^4_{t}(\xi)) & \\
-        & y^+_{t}(\xi) \leq M \phi^5_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^5_{t}(\xi)) & \\
-        & y^-_{t}(\xi) \leq M \phi^6_{t}(\xi), \quad d^+_{t}(\xi) \leq M (1 - \phi^6_{t}(\xi)) & 
+        & R_{t}(\xi) - x_{t} = y_{t}^{+}(\xi) - y_{t}^{-}(\xi) + d^+_{t}(\xi) -  d^-_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) & \forall t\\
+        & R_{t}(\xi) + z^D_{t}(\xi) \geq y^+_t(\xi) + d^+_{t}(\xi) + z^C_{t}(\xi) & \forall t\\
+        & z_{t+1}(\xi) = z_{t}(\xi) + z^C_{t}(\xi) - z^D_{t}(\xi) &\forall t \\
+        & z^D_{t}(\xi) \le z_{t}(\xi), \quad z^C_{t}(\xi) \le K - z_{t}(\xi), \quad 0 \leq z_{t}(\xi) \leq K & \forall t\\
+        & y^+_{t}(\xi) \leq M \phi^1_{t}(\xi), \quad y^-_{t}(\xi) \leq M (1 - \phi^1_{t}(\xi)) & \forall t\\
+        & y^-_{t}(\xi) \leq M \phi^2_{t}(\xi), \quad z^C_{t}(\xi) \leq M (1 - \phi^2_{t}(\xi)) & \forall t\\
+        & z^C_{t}(\xi) \leq M \phi^3_{t}(\xi), \quad z^D_{t}(\xi) \leq M (1 - \phi^3_{t}(\xi)) & \forall t\\
+        & d^+_{t}(\xi) \leq M \phi^4_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^4_{t}(\xi)) & \forall t
+        % & y^+_{t}(\xi) \leq M \phi^5_{t}(\xi), \quad d^-_{t}(\xi) \leq M (1 - \phi^5_{t}(\xi)) & \\
+        % & y^-_{t}(\xi) \leq M \phi^6_{t}(\xi), \quad d^+_{t}(\xi) \leq M (1 - \phi^6_{t}(\xi)) & 
     \end{align}
 \end{subequations}
 
