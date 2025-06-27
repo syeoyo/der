@@ -82,12 +82,7 @@ def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     dp_hol = np.sum(d_hol, axis=1)
     dm_hol = np.sum(d_hol, axis=0)
     
-    return {
-        'x_hol': x_hol, 'a_hol': a_hol, 'yp_hol': yp_hol, 'ym_hol': ym_hol,
-        'z_hol': z_hol, 'zc_hol': zc_hol, 'zd_hol': zd_hol, 'ep_hol': ep_hol,
-        'bp_hol': bp_hol, 'em_hol': em_hol, 'bm_hol': bm_hol, 'd_hol': d_hol,
-        'dp_hol': dp_hol, 'dm_hol': dm_hol, 'obj_hol': set.objVal
-    }
+    return x_hol, a_hol, yp_hol, ym_hol, z_hol, zc_hol, zd_hol, ep_hol, bp_hol, em_hol, bm_hol, d_hol, dp_hol, dm_hol, set.objVal
 
 
 # Holistic Optimization without target DER
@@ -290,11 +285,11 @@ def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_witho
             rho_plus_step[target_i][t][s] = np.array([[0, ap + bp * 0]])
             B_map_plus[target_i, t, s] = 1
         else:
-            qp_org = np.linspace(0, total_supply_without[target_i, t, s], Bp)
-            step_width = total_supply_without[target_i, t, s] / Bp
-            qp_bound = np.linspace(-step_width/2, total_supply_without[target_i, t, s] + step_width/2, Bp + 1)
+            qp_org = np.linspace(0, total_supply_without[target_i, t, s], Bp+1)
+            step_width = total_supply_without[target_i, t, s] / (2*Bp)
+            qp_bound = np.linspace(qp_org[0]-step_width/2, qp_org[-1]+step_width/2, 2*Bp + 2)
             qp_bound = np.clip(qp_bound, 0, total_supply_without[target_i, t, s])
-            rho_plus_step[target_i][t][s] = np.array([[qp, ap + bp * qp] for qp in qp_bound[:-1]])  # 마지막 점 제외
+            rho_plus_step[target_i][t][s] = np.array([[qp, ap + bp * qp] for qp in qp_bound[:-1]])
             B_map_plus[target_i, t, s] = Bp
 
         # ➤ RSC
@@ -305,12 +300,181 @@ def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_witho
             rho_minus_step[target_i][t][s] = np.array([[0, am + bm * 0]])
             B_map_minus[target_i, t, s] = 1
         else:
-            qm_org = np.linspace(0, total_demand_without[target_i, t, s], Bm)
-            step_width = total_demand_without[target_i, t, s] / Bm
-            qm_bound = np.linspace(-step_width/2, total_demand_without[target_i, t, s] + step_width/2, Bm + 1)
+            qm_org = np.linspace(0, total_demand_without[target_i, t, s], Bm+1)
+            step_width = total_demand_without[target_i, t, s] / (2*Bm)
+            qm_bound = np.linspace(qm_org[0]-step_width/2, qm_org[-1]+step_width/2, 2*Bm + 2)
             qm_bound = np.clip(qm_bound, 0, total_demand_without[target_i, t, s])
             rho_minus_step[target_i][t][s] = np.array([[qm, am + bm * qm] for qm in qm_bound[:-1]])
             B_map_minus[target_i, t, s] = Bm
 
     return rho_plus_step, rho_minus_step, B_map_plus, B_map_minus
 
+def compare_allstep(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T):
+
+    x_pwl_sum = np.sum(np.array(x_part), axis=0)                 
+    yp_pwl_avg = np.mean(np.sum(np.array(yp_part), axis=0), axis=1)
+    ym_pwl_avg = np.mean(np.sum(np.array(ym_part), axis=0), axis=1)
+    dp_pwl_avg = np.mean(np.sum(np.array(dp_part), axis=0), axis=1)
+    dm_pwl_avg = np.mean(np.sum(np.array(dm_part), axis=0), axis=1)
+
+    print(f"=== [시나리오 평균] set 모델 vs 전체 PWL 결과 비교 ===\n")
+    print(f"{'t':>2} | {'a_opt':>10} {'x_pwl_sum':>10} || {'bp_opt':>10} {'yp_avg':>10} || {'bm_opt':>10} {'ym_avg':>10} || {'dp_opt':>10} {'dp_avg':>10} || {'dm_opt':>10} {'dm_avg':>10}")
+    print("-" * 125)
+
+    for t in range(T):
+        a_ = a_hol[t]
+        x_ = x_pwl_sum[t]
+
+        bp_ = np.mean(bp_hol[t, :])
+        yp_ = yp_pwl_avg[t]
+
+        bm_ = np.mean(bm_hol[t, :])
+        ym_ = ym_pwl_avg[t]
+
+        dp_ = np.mean(dp_hol[:, t, :].sum(axis=0))
+        dpp_ = dp_pwl_avg[t]
+
+        dm_ = np.mean(dm_hol[:, t, :].sum(axis=0))
+        dmm_ = dm_pwl_avg[t]
+
+        print(f"{t:>2} | {a_:>10.3f} {x_:>10.3f} || {bp_:>10.3f} {yp_:>10.3f} || {bm_:>10.3f} {ym_:>10.3f} || {dp_:>10.3f} {dpp_:>10.3f} || {dm_:>10.3f} {dmm_:>10.3f}")
+
+def compare_onestep(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, x_without, ep_without, em_without, dp_without, dm_without, T, target_i):
+    
+    print(f"=== [시나리오 평균] set 모델 vs (PWL + without) 결과 비교 (target_i={target_i}) ===\n")
+    print(f"{'t':>2} | {'a_opt':>10} {'x_sum':>10} || {'bp_opt':>10} {'yp_avg':>10} || {'bm_opt':>10} {'ym_avg':>10} || {'dp_opt':>10} {'dp_avg':>10} || {'dm_opt':>10} {'dm_avg':>10}")
+    print("-" * 125)
+
+    for t in range(T):
+        a_ = a_hol[t]
+        x_ = x_part[target_i][t] + x_without[target_i][:, t].sum()
+
+        bp_ = np.mean(bp_hol[t, :])
+        yp_ = np.mean(yp_part[target_i][t, :] + ep_without[target_i][:, t, :].sum(axis=0))
+
+        bm_ = np.mean(bm_hol[t, :])
+        ym_ = np.mean(ym_part[target_i][t, :] + em_without[target_i][:, t, :].sum(axis=0))
+
+        dp_ = np.mean(dp_hol[:, t, :].sum(axis=0))
+        dpp_ = np.mean(dp_part[target_i][t, :] + dp_without[target_i][:, t, :].sum(axis=0))
+
+        dm_ = np.mean(dm_hol[:, t, :].sum(axis=0))
+        dmm_ = np.mean(dm_part[target_i][t, :] + dm_without[target_i][:, t, :].sum(axis=0))
+
+        print(f"{t:>2} | {a_:>10.3f} {x_:>10.3f} || {bp_:>10.3f} {yp_:>10.3f} || {bm_:>10.3f} {ym_:>10.3f} || {dp_:>10.3f} {dpp_:>10.3f} || {dm_:>10.3f} {dmm_:>10.3f}")
+
+def compare_onestep_detailed(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, x_without, ep_without, em_without, dp_without, dm_without, T, target_i):
+    print(f"=== [시나리오 평균] PWL(target_i) + without(target_i) vs set 모델 비교 (target_i={target_i}) ===\n")
+    print(f"{'t':>2} | {'a_opt':>10} {'x_pwl':>10} {'x_wo':>10} {'x_sum':>10} || "
+          f"{'bp_hol':>10} {'yp_pwl':>10} {'ep_wo':>10} {'yp_sum':>10} || "
+          f"{'bm_hol':>10} {'ym_pwl':>10} {'em_wo':>10} {'ym_sum':>10} || "
+          f"{'dp_hol':>10} {'dp_pwl':>10} {'d_wo':>10} {'dp_sum':>10} || "
+          f"{'dm_hol':>10} {'dm_pwl':>10} {'d_wo':>10} {'dm_sum':>10}")
+    print("-" * 210)
+
+    for t in range(T):
+        a_ = a_hol[t]
+        x_step = x_part[target_i][t]
+        x_wo = x_without[target_i][:, t].sum()
+        x_sum = x_step + x_wo
+
+        bp_hol_avg = np.mean(bp_hol[t, :])
+        yp_step = np.mean(yp_part[target_i][t, :])
+        ep_wo = np.mean(ep_without[target_i][:, t, :].sum(axis=0))
+        yp_sum = yp_step + ep_wo
+
+        bm_hol_avg = np.mean(bm_hol[t, :])
+        ym_step = np.mean(ym_part[target_i][t, :])
+        em_wo = np.mean(em_without[target_i][:, t, :].sum(axis=0))
+        ym_sum = ym_step + em_wo
+
+        dp_hol_avg = np.mean(dp_hol[:, t, :].sum(axis=0))
+        dp_step = np.mean(dp_part[target_i][t, :])
+        d_wo = np.mean(dp_without[target_i][:, t, :].sum(axis=0))
+        dp_sum = dp_step + d_wo
+
+        dm_hol_avg = np.mean(dm_hol[:, t, :].sum(axis=0))
+        dm_step = np.mean(dm_part[target_i][t, :])
+        d_wo_m = np.mean(dm_without[target_i][:, t, :].sum(axis=0))
+        dm_sum = dm_step + d_wo_m
+
+        print(f"{t:>2} | {a_:>10.3f} {x_step:>10.3f} {x_wo:>10.3f} {x_sum:>10.3f} || "
+              f"{bp_hol_avg:>10.3f} {yp_step:>10.3f} {ep_wo:>10.3f} {yp_sum:>10.3f} || "
+              f"{bm_hol_avg:>10.3f} {ym_step:>10.3f} {em_wo:>10.3f} {ym_sum:>10.3f} || "
+              f"{dp_hol_avg:>10.3f} {dp_step:>10.3f} {d_wo:>10.3f} {dp_sum:>10.3f} || "
+              f"{dm_hol_avg:>10.3f} {dm_step:>10.3f} {d_wo_m:>10.3f} {dm_sum:>10.3f}")
+
+def optimize_individually(R, K, K0, P_DA, P_RT, P_PN, T, S, M1, target_i):
+    only = gp.Model("only")
+    only.setParam("MIPGap", 1e-7)
+    only.setParam("OutputFlag", 0)
+
+    x_ind = only.addVars(T, vtype=GRB.CONTINUOUS, lb=0, name="x")
+    yp_ind = only.addVars(T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_plus")
+    ym_ind = only.addVars(T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_minus")
+    z_ind = only.addVars(T+1, S, vtype=GRB.CONTINUOUS, name="z")
+    zc_ind = only.addVars(T, S, vtype=GRB.CONTINUOUS, name="z_charge")
+    zd_ind = only.addVars(T, S, vtype=GRB.CONTINUOUS, name="z_discharge")
+    zeta = only.addVars(T, S, vtype=GRB.BINARY, name="zeta")
+    delta = only.addVars(T, S, vtype=GRB.BINARY, name="delta")
+    rho = only.addVars(T, S, vtype=GRB.BINARY, name="rho")
+
+    only.update()
+
+    obj = gp.quicksum(P_DA[t] * x_ind[t] for t in range(T)) \
+        + gp.quicksum(1 / S * (P_RT[t, s] * yp_ind[t, s] - P_PN[t] * ym_ind[t, s]) for t, s in product(range(T), range(S)))
+
+    only.setObjective(obj, GRB.MAXIMIZE)
+
+    for t, s in product(range(T), range(S)):
+        only.addConstr(R[target_i, t, s] - x_ind[t] == yp_ind[t, s] - ym_ind[t, s] + zc_ind[t, s] - zd_ind[t, s])
+        only.addConstr(yp_ind[t, s] <= R[target_i, t, s])
+        only.addConstr(z_ind[t + 1, s] == z_ind[t, s] + zc_ind[t, s] - zd_ind[t, s])
+        only.addConstr(zd_ind[t, s] <= z_ind[t, s])
+        only.addConstr(zc_ind[t, s] <= K[target_i] - z_ind[t, s])
+        only.addConstr(yp_ind[t, s] <= M1 * rho[t, s])
+        only.addConstr(ym_ind[t, s] <= M1 * (1 - rho[t, s]))
+        only.addConstr(ym_ind[t, s] <= M1 * delta[t, s])
+        only.addConstr(zc_ind[t, s] <= M1 * (1 - delta[t, s]))
+        only.addConstr(zc_ind[t, s] <= M1 * zeta[t, s])
+        only.addConstr(zd_ind[t, s] <= M1 * (1 - zeta[t, s]))
+    
+    for s in range(S):
+        only.addConstr(z_ind[0, s] == K0[target_i])
+
+    only.optimize()
+
+    if only.status == GRB.OPTIMAL:
+        print(f"Optimal solution found for target_i={target_i}! Objective value: {only.objVal}")
+        obj_val = only.objVal
+    else:
+        print(f"No optimal solution found for target_i={target_i}.")
+        obj_val = None
+
+    x_ind = np.array([x_ind[t].X for t in range(T)])
+    yp_ind = np.array([[yp_ind[t, s].X for s in range(S)] for t in range(T)]) 
+    ym_ind = np.array([[ym_ind[t, s].X for s in range(S)] for t in range(T)])
+    z_ind  = np.array([[z_ind[t, s].X for s in range(S)] for t in range(T)])
+    zc_ind = np.array([[zc_ind[t, s].X for s in range(S)] for t in range(T)])
+    zd_ind = np.array([[zd_ind[t, s].X for s in range(S)] for t in range(T)])
+    
+    return x_ind, yp_ind, ym_ind, z_ind, zc_ind, zd_ind, obj_val
+
+
+def optimize_individually_forall(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1):
+    x_ind = {} ; yp_ind = {} ; ym_ind = {}; z_ind = {} ; zc_ind = {} ; zd_ind = {}; obj_ind = {}
+    
+    for target_i in tqdm(range(I), desc="Optimizing individually for each target_i"):
+        x_individual, yp_individual, ym_individual, z_individual, zc_individual, zd_individual, obj_individual = optimize_individually(
+            R, K, K0, P_DA, P_RT, P_PN, T, S, M1, target_i
+        )
+        
+        x_ind[target_i] = x_individual
+        yp_ind[target_i] = yp_individual
+        ym_ind[target_i] = ym_individual
+        z_ind[target_i] = z_individual
+        zc_ind[target_i] = zc_individual
+        zd_ind[target_i] = zd_individual
+        obj_ind[target_i] = obj_individual
+    
+    return x_ind, yp_ind, ym_ind, z_ind, zc_ind, zd_ind, obj_ind

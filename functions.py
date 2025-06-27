@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=20
+    S=30
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -23,8 +23,8 @@ def load_generation_data(include_files = None, date_filter = None):
         # include_files = ['1201.csv', '89.csv']
         # include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
-        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/SynologyDrive/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
@@ -61,13 +61,13 @@ def load_generation_data(include_files = None, date_filter = None):
                 print(f"{file}: {date_filter} 데이터 없음. 스킵됨.")
                 continue 
 
-        df = df[df[hour_col].astype(str).str.match(r'^\d+$')]
-        df["Time"] = df[hour_col].astype(int)
-        df = df[df["Time"].between(0, 23)]
+        df = df[pd.Series(df[hour_col]).astype(str).str.match(r'^\d+$')]
+        df["Time"] = pd.Series(df[hour_col]).astype(int)
+        df = df[pd.Series(df["Time"]).between(0, 23)]
 
         for t in range(T):
-            if t in df["Time"].values:
-                generation_data[idx, t] = df[df["Time"] == t][gen_col].values[0]
+            if t in pd.Series(df["Time"]).values:
+                generation_data[idx, t] = pd.Series(df[df["Time"] == t][gen_col]).values[0]
 
         loaded_files.append(file)
 
@@ -78,10 +78,10 @@ def load_generation_data(include_files = None, date_filter = None):
 def load_price_data(scale_da=1.3, scale_penalty=1.5, region="N.Y.C."):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
-    ny_da["Hour"] = ny_da["Time Stamp"].dt.hour
+    ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour
     nyc_data = ny_da[ny_da["Name"] == region]
     
-    P_DA = nyc_data["LBMP ($/MWHr)"].astype(float).to_numpy() * float(scale_da)
+    P_DA = np.array(nyc_data["LBMP ($/MWHr)"].astype(float)) * float(scale_da)
     P_PN = P_DA * float(scale_penalty)
     return P_DA, P_PN
 
@@ -95,7 +95,8 @@ def generate_rt_scenarios(S, randomness_level):
     end_of_day = start_of_day + pd.Timedelta(hours=23)
     nyc_rt = nyc_rt[(nyc_rt["Time Stamp"] >= start_of_day) & (nyc_rt["Time Stamp"] <= end_of_day)]
 
-    nyc_rt["Hour"] = nyc_rt["Time Stamp"].dt.floor("h")
+    nyc_rt = pd.DataFrame(nyc_rt)
+    nyc_rt["Hour"] = pd.Series(nyc_rt["Time Stamp"]).dt.floor("h")
     hourly_avg = nyc_rt.groupby("Hour")["LBMP ($/MWHr)"].mean().reset_index()
     price_hourly = hourly_avg["LBMP ($/MWHr)"].to_numpy()
     T = len(price_hourly)
@@ -333,7 +334,7 @@ def plot_hourly_contribution(*hourly_contributions, labels=None, selected_hours=
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.02, 1))
 
-    plt.tight_layout(rect=[0, 0, 0.95, 1])  # Adjust layout to fit legend
+    plt.tight_layout(rect=(0, 0, 0.95, 1))  # Adjust layout to fit legend
     plt.show()
 
 # plot_daily_contribution(daily_contribution(x_vals), daily_contribution(given_vals), labels=["x", "d"])
@@ -389,7 +390,7 @@ def plot_hourly_remuneration(*hourly_remunerations, labels=None, selected_hours=
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.02, 1))
 
-    plt.tight_layout(rect=[0, 0, 0.95, 1])  # Adjust layout to fit legend
+    plt.tight_layout(rect=(0, 0, 0.95, 1))  # Adjust layout to fit legend
     plt.show()
 
 # plot_daily_remuneration(remuneration_daily, remuneration_daily1, labels=["x", "d"])
@@ -415,7 +416,7 @@ def plot_daily_remuneration(*daily_remunerations, labels=None):
     plt.xticks(range(I))
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))  # 오른쪽 바깥에 배치
-    plt.tight_layout(rect=[0, 0, 1.11, 1])
+    plt.tight_layout(rect=(0, 0, 1.11, 1))
     plt.show()
 
 def plot_summary(model, K, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s=0):
