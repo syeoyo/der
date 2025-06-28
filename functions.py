@@ -6,7 +6,7 @@ from gurobipy import GRB
 import os
 
 def load_parameters(I, T, generation_data):
-    S=30
+    S=20
     randomness_level="high"
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
     P_RT = generate_rt_scenarios(S, randomness_level)
@@ -23,8 +23,8 @@ def load_generation_data(include_files = None, date_filter = None):
         # include_files = ['1201.csv', '89.csv']
         # include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
-        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/SynologyDrive/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
@@ -75,7 +75,7 @@ def load_generation_data(include_files = None, date_filter = None):
 
     return generation_data, I, T
 
-def load_price_data(scale_da=1.3, scale_penalty=1.5, region="N.Y.C."):
+def load_price_data(scale_da=1.2, scale_penalty=1.5, region="N.Y.C."):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
     ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour

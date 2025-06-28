@@ -267,7 +267,7 @@ def compute_price_functions(yp_without, ym_without, dp_without, dm_without, i_ma
     return rdc_coefficients_all, rsc_coefficients_all, rho_plus_func_all, rho_minus_func_all, total_demand_without, total_supply_without
 
 
-def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_without):
+def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_without, step_width_multiplier=1.0):
 
     I, T, S, _ = rho_plus.shape
     rho_plus_step = np.full((I, T, S), np.nan, dtype=object)
@@ -279,35 +279,36 @@ def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_witho
     for target_i, t, s in product(range(I), range(T), range(S)):
         # ➤ RDC 
         ap, bp = rho_plus[target_i, t, s]  
-        Bp = max(1, int(np.ceil(total_supply_without[target_i, t, s])))
+        Bp = max(1, int(np.ceil(total_supply_without[target_i, t, s] / step_width_multiplier)))
 
         if total_supply_without[target_i, t, s] <= 0:
             rho_plus_step[target_i][t][s] = np.array([[0, ap + bp * 0]])
             B_map_plus[target_i, t, s] = 1
         else:
             qp_org = np.linspace(0, total_supply_without[target_i, t, s], Bp+1)
-            step_width = total_supply_without[target_i, t, s] / (2*Bp)
-            qp_bound = np.linspace(qp_org[0]-step_width/2, qp_org[-1]+step_width/2, 2*Bp + 2)
+            step_width = total_supply_without[target_i, t, s] / (Bp)
+            qp_bound = np.linspace(qp_org[0]-step_width/2, qp_org[-1]+step_width/2, Bp + 2)
             qp_bound = np.clip(qp_bound, 0, total_supply_without[target_i, t, s])
             rho_plus_step[target_i][t][s] = np.array([[qp, ap + bp * qp] for qp in qp_bound[:-1]])
             B_map_plus[target_i, t, s] = Bp
 
         # ➤ RSC
         am, bm = rho_minus[target_i, t, s]
-        Bm = max(1, int(np.ceil(total_demand_without[target_i, t, s])))
+        Bm = max(1, int(np.ceil(total_demand_without[target_i, t, s] / step_width_multiplier)))
 
         if total_demand_without[target_i, t, s] <= 0:
             rho_minus_step[target_i][t][s] = np.array([[0, am + bm * 0]])
             B_map_minus[target_i, t, s] = 1
         else:
             qm_org = np.linspace(0, total_demand_without[target_i, t, s], Bm+1)
-            step_width = total_demand_without[target_i, t, s] / (2*Bm)
-            qm_bound = np.linspace(qm_org[0]-step_width/2, qm_org[-1]+step_width/2, 2*Bm + 2)
+            step_width = total_demand_without[target_i, t, s] / (Bm)
+            qm_bound = np.linspace(qm_org[0]-step_width/2, qm_org[-1]+step_width/2, Bm + 2)
             qm_bound = np.clip(qm_bound, 0, total_demand_without[target_i, t, s])
             rho_minus_step[target_i][t][s] = np.array([[qm, am + bm * qm] for qm in qm_bound[:-1]])
             B_map_minus[target_i, t, s] = Bm
 
     return rho_plus_step, rho_minus_step, B_map_plus, B_map_minus
+
 
 def compare_allstep(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T):
 
