@@ -210,6 +210,8 @@ def compute_price_functions(yp_without, ym_without, dp_without, dm_without, i_ma
                 for i in i_map:
                     given_profit += dp_vals[i_map[i], t, s] * P_PN[t]
                     received_profit += dm_vals[i_map[i], t, s] * P_RT[t, s]
+                    # given_profit += dp_vals[i_map[i], t, s] * P_RT[t, s]
+                    # received_profit += dm_vals[i_map[i], t, s] * P_PN[t]
                     realized_supply += dp_vals[i_map[i], t, s]
                     realized_demand += dm_vals[i_map[i], t, s]
 
@@ -230,7 +232,7 @@ def compute_price_functions(yp_without, ym_without, dp_without, dm_without, i_ma
                 if abs(denom) < 1e-6: continue
 
                 # === RDC: q0 → 공급 증가 ===
-                q0_list_rdc = np.linspace(-5, 1.1 * total_supply, 10)
+                q0_list_rdc = np.linspace(-1, 1.1 * total_supply, 10)
                 prices_rdc = []
                 for q0 in q0_list_rdc:
                     q_cleared = (a_d - a_s + b_s * q0) / denom
@@ -240,7 +242,7 @@ def compute_price_functions(yp_without, ym_without, dp_without, dm_without, i_ma
                 p_rdc = np.array(prices_rdc)
 
                 # === RSC: q0 → 수요 증가 ===
-                q0_list_rsc = np.linspace(-5, 1.1 * total_demand, 10)
+                q0_list_rsc = np.linspace(-1, 1.1 * total_demand, 10)
                 prices_rsc = []
                 for q0 in q0_list_rsc:
                     q_cleared = (a_d + b_d * q0 - a_s) / denom
@@ -279,31 +281,31 @@ def transform_step(rho_plus, rho_minus, total_demand_without, total_supply_witho
     for target_i, t, s in product(range(I), range(T), range(S)):
         # ➤ RDC 
         ap, bp = rho_plus[target_i, t, s]  
-        Bp = max(1, int(np.ceil(total_supply_without[target_i, t, s] / step_width_multiplier)))
+        Bp = max(1, int(np.ceil(total_demand_without[target_i, t, s] / step_width_multiplier)))
 
-        if total_supply_without[target_i, t, s] <= 0:
+        if total_demand_without[target_i, t, s] <= 0:
             rho_plus_step[target_i][t][s] = np.array([[0, ap + bp * 0]])
             B_map_plus[target_i, t, s] = 1
         else:
-            qp_org = np.linspace(0, total_supply_without[target_i, t, s], Bp+1)
-            step_width = total_supply_without[target_i, t, s] / (Bp)
+            qp_org = np.linspace(0, total_demand_without[target_i, t, s], Bp+1)
+            step_width = total_demand_without[target_i, t, s] / (Bp)
             qp_bound = np.linspace(qp_org[0]-step_width/2, qp_org[-1]+step_width/2, Bp + 2)
-            qp_bound = np.clip(qp_bound, 0, total_supply_without[target_i, t, s])
+            qp_bound = np.clip(qp_bound, 0, total_demand_without[target_i, t, s])
             rho_plus_step[target_i][t][s] = np.array([[qp, ap + bp * qp] for qp in qp_bound[:-1]])
             B_map_plus[target_i, t, s] = Bp
 
         # ➤ RSC
         am, bm = rho_minus[target_i, t, s]
-        Bm = max(1, int(np.ceil(total_demand_without[target_i, t, s] / step_width_multiplier)))
+        Bm = max(1, int(np.ceil(total_supply_without[target_i, t, s] / step_width_multiplier)))
 
-        if total_demand_without[target_i, t, s] <= 0:
+        if total_supply_without[target_i, t, s] <= 0:
             rho_minus_step[target_i][t][s] = np.array([[0, am + bm * 0]])
             B_map_minus[target_i, t, s] = 1
         else:
-            qm_org = np.linspace(0, total_demand_without[target_i, t, s], Bm+1)
-            step_width = total_demand_without[target_i, t, s] / (Bm)
+            qm_org = np.linspace(0, total_supply_without[target_i, t, s], Bm+1)
+            step_width = total_supply_without[target_i, t, s] / (Bm)
             qm_bound = np.linspace(qm_org[0]-step_width/2, qm_org[-1]+step_width/2, Bm + 2)
-            qm_bound = np.clip(qm_bound, 0, total_demand_without[target_i, t, s])
+            qm_bound = np.clip(qm_bound, 0, total_supply_without[target_i, t, s])
             rho_minus_step[target_i][t][s] = np.array([[qm, am + bm * qm] for qm in qm_bound[:-1]])
             B_map_minus[target_i, t, s] = Bm
 
