@@ -23,8 +23,8 @@ def load_generation_data(include_files = None, date_filter = None):
         # include_files = ['1201.csv', '89.csv']
         # include_files = ['1201.csv', '401.csv', '89.csv']
         # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
-        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
+        include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
+        # include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
     data_dir = "/Users/jangseohyun/SynologyDrive/workspace/symply/DER/data/generation"
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
@@ -105,7 +105,7 @@ def generate_rt_scenarios(S, randomness_level):
     noise_ranges = {
         "low": (0.95, 1.05),
         "medium": (0.85, 1.15),
-        "high": (0.7, 1.3),
+        "high": (0.5, 1.5),
     }
 
     if randomness_level not in noise_ranges:

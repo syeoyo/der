@@ -65,9 +65,7 @@ def compute_price_functions(yp_without, ym_without, dp_without, dm_without, i_ma
 
                 for i in i_map:
                     given_profit += dp_vals[i_map[i], t, s] * P_PN[t]
-                    received_profit += dm_vals[i_map[i], t, s] * P_RT[t, s]
-                    # given_profit += dp_vals[i_map[i], t, s] * P_RT[t, s]
-                    # received_profit += dm_vals[i_map[i], t, s] * P_PN[t]
+                    received_profit += dm_vals[i_map[i], t, s] * P_RT[t, s] 
                     realized_supply += dp_vals[i_map[i], t, s]
                     realized_demand += dm_vals[i_map[i], t, s]
 
