@@ -135,7 +135,7 @@ def evaluate_and_visualize_profits(x_ind, yp_ind, ym_ind, P_DA, P_RT, P_PN, NO_V
 
 
 
-def compare_individual_solutions(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind, ym_ind, 
+def compare_step_vs_ind(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind, ym_ind, 
                                RP_CLEARED, RM_CLEARED, P_DA, P_RT, P_PN, T, S, I):
 
     for target_i in range(I):
@@ -216,16 +216,47 @@ def print_summary_only(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind
             sum_ym_step += ym_step 
             sum_ym_ind += ym_indv
 
-        print(f"\n타겟 참여자 {target_i}번의 합계:")
+        header = (
+            f"{'t':>3} | "
+            f"{'P_DA':>8} {'x_step':>8} {'x_ind':>8} || "
+            f"{'RHO_P':>15} {'dp_step':>8} {'P_RT':>8} {'yp_step':>8} {'yp_ind':>8} || "
+            f"{'RHO_M':>15} {'dm_step':>8} {'P_PN':>8} {'ym_step':>8} {'ym_ind':>8}"
+        )
+        print(header)
         print("-" * 145)
         print(
-            f"{'합계':>3} | "
+            f"{'{target_i}':>3} | "
             f"{'':>8} {sum_x_step:>8.2f} {sum_x_ind:>8.2f} || "
             f"{'':>15} {sum_dp_step:>8.2f} {'':>8} {sum_yp_step:>8.2f} {sum_yp_ind:>8.2f} || "
             f"{'':>15} {sum_dm_step:>8.2f} {'':>8} {sum_ym_step:>8.2f} {sum_ym_ind:>8.2f}"
         )
 
+def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
+    print("=" * 120)
+    print("STEPWISE vs HOLISTIC 모델 비교 (시나리오 평균)")
+    print("=" * 120)
     
+    for target_i in range(I):
+        print(f"\n타겟 참여자 {target_i}번:")
+        print("-" * 120)
+        print(f"{'t':>2} | {'x_step':>8} {'x_hol':>8} | {'yp_step':>8} {'yp_hol':>8} | {'dp_step':>8} {'dp_hol':>8} | {'ym_step':>8} {'ym_hol':>8} | {'dm_step':>8} {'dm_hol':>8}")
+        print("-" * 120)
+        
+        for t in range(T):
+            x_step_avg = x_part[target_i][t]
+            yp_step_avg = np.mean(yp_part[target_i][t, :])
+            ym_step_avg = np.mean(ym_part[target_i][t, :])
+            dp_step_avg = np.mean(dp_part[target_i][t, :])
+            dm_step_avg = np.mean(dm_part[target_i][t, :])
+            
+            x_hol_avg = x_hol[target_i, t]
+            ep_hol_avg = np.mean(ep_hol[target_i, t, :])
+            em_hol_avg = np.mean(em_hol[target_i, t, :])
+            dp_hol_avg = np.mean(dp_hol[target_i, t, :])
+            dm_hol_avg = np.mean(dm_hol[target_i, t, :])
+            
+            print(f"{t:>2} | {x_step_avg:>8.2f} {x_hol_avg:>8.2f} | {yp_step_avg:>8.2f} {ep_hol_avg:>8.2f} | {dp_step_avg:>8.2f} {dp_hol_avg:>8.2f} | {ym_step_avg:>8.2f} {em_hol_avg:>8.2f} | {dm_step_avg:>8.2f} {dm_hol_avg:>8.2f}")
+
 def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRICE_PROFIT, WORST_CASE_PROFIT, BEST_CASE_PROFIT, a_hol, bp_hol, bm_hol, P_DA, P_RT, P_PN, T, S, I):
     individual_profit = 0
     for i in range(I):
@@ -251,20 +282,65 @@ def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRI
                     stepwise_profit_worst_case, stepwise_profit_best_case, aggregation_profit]
         })
         
-    pd.DataFrame(df_profit)
-    
+    print(df_profit)
+
+def compare_holall_vs_holwithstep(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
+    print(f"전체 holistic 최적화 vs 본인만 stepwise 최적화 + 나머지는 (본인포함) holistic")
+    for i in range(I):
+        print(f"{'i':>2} | {'t':>2} | {'x_hol_sum':>10} {'x_part_sum':>12} | {'ep_hol_mean':>12} {'yp_part_sum':>12} | {'em_hol_mean':>12} {'ym_part_sum':>12} | {'dp_hol_mean':>12} {'dp_part_sum':>12} | {'dm_hol_mean':>12} {'dm_part_sum':>12}")
+        print("-" * 145)
+        
+        total_x_hol_sum = 0
+        total_x_part_sum = 0
+        total_ep_hol_mean = 0
+        total_yp_part_sum = 0
+        total_em_hol_mean = 0
+        total_ym_part_sum = 0
+        total_dp_hol_mean = 0
+        total_dp_part_sum = 0
+        total_dm_hol_mean = 0
+        total_dm_part_sum = 0
+        
+        for t in range(T):
+            x_hol_sum = np.sum([x_hol[j, t] for j in range(I)])
+            x_part_sum = x_part[i][t] + np.sum([x_hol[j, t] for j in range(I) if j != i])
+
+            ep_hol_mean = np.mean([np.mean(ep_hol[j, t, :]) for j in range(I)])
+            yp_part_mean = np.mean(yp_part[i][t, :])
+            yp_part_sum = yp_part_mean + np.mean([np.mean(ep_hol[j, t, :]) for j in range(I) if j != i])
+
+            em_hol_mean = np.mean([np.mean(em_hol[j, t, :]) for j in range(I)])
+            ym_part_mean = np.mean(ym_part[i][t, :])
+            ym_part_sum = ym_part_mean +  np.mean([np.mean(em_hol[j, t, :]) for j in range(I) if j != i])
+
+            dp_hol_mean = np.mean([np.mean(dp_hol[j, t, :]) for j in range(I)])
+            dp_part_mean = np.mean(dp_part[i][t, :])
+            dp_part_sum = dp_part_mean + np.mean([np.mean(dp_hol[j, t, :]) for j in range(I) if j != i])
+
+            dm_hol_mean = np.mean([np.mean(dm_hol[j, t, :]) for j in range(I)])
+            dm_part_mean = np.mean(dm_part[i][t, :])
+            dm_part_sum = dm_part_mean + np.mean([np.mean(dm_hol[j, t, :]) for j in range(I) if j != i])
+
+            total_x_hol_sum += x_hol_sum
+            total_x_part_sum += x_part_sum
+            total_ep_hol_mean += ep_hol_mean
+            total_yp_part_sum += yp_part_sum
+            total_em_hol_mean += em_hol_mean
+            total_ym_part_sum += ym_part_sum
+            total_dp_hol_mean += dp_hol_mean
+            total_dp_part_sum += dp_part_sum
+            total_dm_hol_mean += dm_hol_mean
+            total_dm_part_sum += dm_part_sum
+
+            print(f"{i:>2} | {t:>2} | {x_hol_sum:>10.2f} {x_part_sum:>12.2f} | {ep_hol_mean:>12.2f} {yp_part_sum:>12.2f} | {em_hol_mean:>12.2f} {ym_part_sum:>12.2f} | {dp_hol_mean:>12.2f} {dp_part_sum:>12.2f} | {dm_hol_mean:>12.2f} {dm_part_sum:>12.2f}")
+
+        print("-" * 145)
+        print(f"Sum | -- | {total_x_hol_sum:>10.2f} {total_x_part_sum:>12.2f} | {total_ep_hol_mean:>12.2f} {total_yp_part_sum:>12.2f} | {total_em_hol_mean:>12.2f} {total_ym_part_sum:>12.2f} | {total_dp_hol_mean:>12.2f} {total_dp_part_sum:>12.2f} | {total_dm_hol_mean:>12.2f} {total_dm_part_sum:>12.2f}")
+        print()
 
 
-def compare_time_scenario_averages(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
-    """
-    시간별 시나리오 평균을 비교하는 함수
-    
-    Parameters:
-    - a_hol, bp_hol, bm_hol, dp_hol, dm_hol: 홀딩 변수들
-    - x_part, yp_part, ym_part, dp_part, dm_part: 스텝와이즈 모델 결과
-    - T, S, I: 시간, 시나리오, 참여자 수
-    """
-    print(f"시간별 시나리오 평균 비교")
+def compare_holall_vs_stepsum(a_hol, bp_hol, bm_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
+    print(f"전체 holistic 최적화 vs 전체 stepwise 최적화")
     print("-" * 140)
     print(f"{'t':>2} | {'a_hol':>8} {'x_part_sum':>12} | {'bp_hol_avg':>12} {'yp_part_sum':>12} | {'bm_hol_avg':>12} {'ym_part_sum':>12} | {'dp_hol_sum':>12} {'dp_part_sum':>12} | {'dm_hol_sum':>12} {'dm_part_sum':>12}")
     print("-" * 140)
