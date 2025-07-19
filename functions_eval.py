@@ -239,7 +239,7 @@ def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, 
     for target_i in range(I):
         print(f"\n타겟 참여자 {target_i}번:")
         print("-" * 120)
-        print(f"{'t':>2} | {'x_step':>8} {'x_hol':>8} | {'yp_step':>8} {'yp_hol':>8} | {'dp_step':>8} {'dp_hol':>8} | {'ym_step':>8} {'ym_hol':>8} | {'dm_step':>8} {'dm_hol':>8}")
+        print(f"{'t':>2} | {'x_step':>8} {'x_hol':>8} | {'yp_step':>8} {'yp_hol':>8} | {'ym_step':>8} {'ym_hol':>8} | {'dp_step':>8} {'dp_hol':>8} | {'dm_step':>8} {'dm_hol':>8}")
         print("-" * 120)
         
         for t in range(T):
@@ -255,7 +255,8 @@ def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, 
             dp_hol_avg = np.mean(dp_hol[target_i, t, :])
             dm_hol_avg = np.mean(dm_hol[target_i, t, :])
             
-            print(f"{t:>2} | {x_step_avg:>8.2f} {x_hol_avg:>8.2f} | {yp_step_avg:>8.2f} {ep_hol_avg:>8.2f} | {dp_step_avg:>8.2f} {dp_hol_avg:>8.2f} | {ym_step_avg:>8.2f} {em_hol_avg:>8.2f} | {dm_step_avg:>8.2f} {dm_hol_avg:>8.2f}")
+            print(f"{t:>2} | {x_step_avg:>8.2f} {x_hol_avg:>8.2f} | {yp_step_avg:>8.2f} {ep_hol_avg:>8.2f} | {ym_step_avg:>8.2f} {em_hol_avg:>8.2f} | {dp_step_avg:>8.2f} {dp_hol_avg:>8.2f} | {dm_step_avg:>8.2f} {dm_hol_avg:>8.2f}")
+
 
 def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRICE_PROFIT, WORST_CASE_PROFIT, BEST_CASE_PROFIT, a_hol, bp_hol, bm_hol, P_DA, P_RT, P_PN, T, S, I):
     individual_profit = 0
@@ -305,21 +306,21 @@ def compare_holall_vs_holwithstep(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part,
             x_hol_sum = np.sum([x_hol[j, t] for j in range(I)])
             x_part_sum = x_part[i][t] + np.sum([x_hol[j, t] for j in range(I) if j != i])
 
-            ep_hol_mean = np.mean([np.mean(ep_hol[j, t, :]) for j in range(I)])
+            ep_hol_mean = np.sum([np.mean(ep_hol[j, t, :]) for j in range(I)])
             yp_part_mean = np.mean(yp_part[i][t, :])
-            yp_part_sum = yp_part_mean + np.mean([np.mean(ep_hol[j, t, :]) for j in range(I) if j != i])
+            yp_part_sum = yp_part_mean + np.sum([np.mean(ep_hol[j, t, :]) for j in range(I) if j != i])
 
-            em_hol_mean = np.mean([np.mean(em_hol[j, t, :]) for j in range(I)])
+            em_hol_mean = np.sum([np.mean(em_hol[j, t, :]) for j in range(I)])
             ym_part_mean = np.mean(ym_part[i][t, :])
-            ym_part_sum = ym_part_mean +  np.mean([np.mean(em_hol[j, t, :]) for j in range(I) if j != i])
+            ym_part_sum = ym_part_mean +  np.sum([np.mean(em_hol[j, t, :]) for j in range(I) if j != i])
 
-            dp_hol_mean = np.mean([np.mean(dp_hol[j, t, :]) for j in range(I)])
+            dp_hol_mean = np.sum([np.mean(dp_hol[j, t, :]) for j in range(I)])
             dp_part_mean = np.mean(dp_part[i][t, :])
-            dp_part_sum = dp_part_mean + np.mean([np.mean(dp_hol[j, t, :]) for j in range(I) if j != i])
+            dp_part_sum = dp_part_mean + np.sum([np.mean(dp_hol[j, t, :]) for j in range(I) if j != i])
 
-            dm_hol_mean = np.mean([np.mean(dm_hol[j, t, :]) for j in range(I)])
+            dm_hol_mean = np.sum([np.mean(dm_hol[j, t, :]) for j in range(I)])
             dm_part_mean = np.mean(dm_part[i][t, :])
-            dm_part_sum = dm_part_mean + np.mean([np.mean(dm_hol[j, t, :]) for j in range(I) if j != i])
+            dm_part_sum = dm_part_mean + np.sum([np.mean(dm_hol[j, t, :]) for j in range(I) if j != i])
 
             total_x_hol_sum += x_hol_sum
             total_x_part_sum += x_part_sum
