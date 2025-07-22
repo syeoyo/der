@@ -232,15 +232,15 @@ def print_summary_only(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind
         )
 
 def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
-    print("=" * 120)
+    print("=" * 110)
     print("STEPWISE vs HOLISTIC 모델 비교 (시나리오 평균)")
-    print("=" * 120)
+    print("=" * 110)
     
     for target_i in range(I):
         print(f"\n타겟 참여자 {target_i}번:")
-        print("-" * 120)
-        print(f"{'t':>2} | {'x_step':>8} {'x_hol':>8} | {'yp_step':>8} {'yp_hol':>8} | {'ym_step':>8} {'ym_hol':>8} | {'dp_step':>8} {'dp_hol':>8} | {'dm_step':>8} {'dm_hol':>8}")
-        print("-" * 120)
+        print("-" * 110)
+        print(f"{'t':>2} | {'x_hol':>8} {'x_step':>8} | {'yp_hol':>8} {'yp_step':>8} | {'ym_hol':>8} {'ym_step':>8} | {'dp_hol':>8} {'dp_step':>8} | {'dm_hol':>8} {'dm_step':>8}")
+        print("-" * 110)
         
         for t in range(T):
             x_step_avg = x_part[target_i][t]
@@ -255,8 +255,7 @@ def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, 
             dp_hol_avg = np.mean(dp_hol[target_i, t, :])
             dm_hol_avg = np.mean(dm_hol[target_i, t, :])
             
-            print(f"{t:>2} | {x_step_avg:>8.2f} {x_hol_avg:>8.2f} | {yp_step_avg:>8.2f} {ep_hol_avg:>8.2f} | {ym_step_avg:>8.2f} {em_hol_avg:>8.2f} | {dp_step_avg:>8.2f} {dp_hol_avg:>8.2f} | {dm_step_avg:>8.2f} {dm_hol_avg:>8.2f}")
-
+            print(f"{t:>2} | {x_hol_avg:>8.2f} {x_step_avg:>8.2f} | {ep_hol_avg:>8.2f} {yp_step_avg:>8.2f} | {em_hol_avg:>8.2f} {ym_step_avg:>8.2f} | {dp_hol_avg:>8.2f} {dp_step_avg:>8.2f} | {dm_hol_avg:>8.2f} {dm_step_avg:>8.2f}")
 
 def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRICE_PROFIT, WORST_CASE_PROFIT, BEST_CASE_PROFIT, a_hol, bp_hol, bm_hol, P_DA, P_RT, P_PN, T, S, I):
     individual_profit = 0
