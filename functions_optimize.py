@@ -89,8 +89,8 @@ def optimize_individually_forall(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1):
 # Holistic Model (including all DERs)
 def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     set = gp.Model("set")
-    set.setParam("MIPGap", 1e-7)
-    set.setParam("OutputFlag", 0)
+    set.setParam("MIPGap", 1e-3)
+    # set.setParam("OutputFlag", 0)
 
     x_hol = set.addVars(I, T, vtype=GRB.CONTINUOUS, lb=0, name="x")
     ep_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="e_plus")
