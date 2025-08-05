@@ -5,6 +5,8 @@ import gurobipy as gp
 from gurobipy import GRB
 from itertools import product
 from tqdm import tqdm
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 
 # Individual Participation Model (only for target DER)
 def optimize_individually(R, K, K0, P_DA, P_RT, P_PN, T, S, M1, target_i):
@@ -25,7 +27,7 @@ def optimize_individually(R, K, K0, P_DA, P_RT, P_PN, T, S, M1, target_i):
     only.update()
 
     obj = gp.quicksum(P_DA[t] * x_ind[t] for t in range(T)) \
-        + gp.quicksum(1 / S * (P_RT[t, s] * yp_ind[t, s] - P_PN[t, s] * ym_ind[t, s]) for t, s in product(range(T), range(S)))
+        + gp.quicksum(1 / S * (P_RT[t, s] * yp_ind[t, s] - P_PN[t] * ym_ind[t, s]) for t, s in product(range(T), range(S)))
 
     only.setObjective(obj, GRB.MAXIMIZE)
 
@@ -87,8 +89,8 @@ def optimize_individually_forall(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1):
 # Holistic Model (including all DERs)
 def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     set = gp.Model("set")
-    set.setParam("MIPGap", 1e-4)
-    set.setParam("OutputFlag", 0)
+    set.setParam("MIPGap", 1e-3)
+    # set.setParam("OutputFlag", 0)
 
     x_hol = set.addVars(I, T, vtype=GRB.CONTINUOUS, lb=0, name="x")
     ep_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="e_plus")
@@ -108,7 +110,7 @@ def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
 
     set.update()
 
-    obj_hol = gp.quicksum(P_DA[t] * gp.quicksum(x_hol[i, t] for i in range(I)) for t in range(T)) + gp.quicksum((1 / S) * (P_RT[t, s] * gp.quicksum(ep_hol[i, t, s] for i in range(I)) - P_PN[t, s] * gp.quicksum(em_hol[i, t, s] for i in range(I))) for t in range(T) for s in range(S))
+    obj_hol = gp.quicksum(P_DA[t] * gp.quicksum(x_hol[i, t] for i in range(I)) for t in range(T)) + gp.quicksum((1 / S) * (P_RT[t, s] * gp.quicksum(ep_hol[i, t, s] for i in range(I)) - P_PN[t] * gp.quicksum(em_hol[i, t, s] for i in range(I))) for t in range(T) for s in range(S))
 
     set.setObjective(obj_hol, GRB.MAXIMIZE)
 
@@ -159,6 +161,8 @@ def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     
     return x_hol, a_hol, yp_hol, ym_hol, z_hol, zc_hol, zd_hol, ep_hol, bp_hol, em_hol, bm_hol, d_hol, dp_hol, dm_hol, set.objVal
 
+
+# Holistic Optimization without target DER
 def optimize_without(target_i, R, K, K0, P_DA, P_RT, P_PN, I, T, S):
     I_set = [i for i in range(I) if i != target_i]
     M1 = np.maximum(R[I_set], K[I_set, None, None]).max()
@@ -186,7 +190,7 @@ def optimize_without(target_i, R, K, K0, P_DA, P_RT, P_PN, I, T, S):
     obj = gp.quicksum(P_DA[t] * x_wo[i, t] for i in I_set for t in range(T)) + gp.quicksum(
         (1 / S) * (
             P_RT[t, s] * gp.quicksum(ep_wo[i, t, s] for i in I_set) -
-            P_PN[t, s] * gp.quicksum(em_wo[i, t, s] for i in I_set)
+            P_PN[t] * gp.quicksum(em_wo[i, t, s] for i in I_set)
         )
         for t in range(T) for s in range(S)
     )
@@ -231,6 +235,8 @@ def optimize_without(target_i, R, K, K0, P_DA, P_RT, P_PN, I, T, S):
 
     return x_wo, ep_wo, em_wo, yp_wo, ym_wo, d_wo, dp_wo, dm_wo, i_map
 
+
+# Holistic Optimization without target DER LOOP
 def optimize_without_loop(R, K, K0, P_DA, P_RT, P_PN, I, T, S):
     x_without = {}; ep_without = {}; em_without = {}
     yp_without = {}; ym_without = {}; d_without = {}; dp_without = {}; dm_without = {}; i_map_without = {}
@@ -251,16 +257,16 @@ def optimize_without_loop(R, K, K0, P_DA, P_RT, P_PN, I, T, S):
 
     return x_without, ep_without, em_without, yp_without, ym_without, d_without, dp_without, dm_without, i_map_without
 
-def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM, M1):
-# def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM, total_demand_without, total_supply_without, M1):
+
+# Stepwise Optimization LOOP
+def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM, total_demand_without, total_supply_without, M1):
+
     x_part, yp_part, ym_part, z_part, zc_part, zd_part, dp_part, dm_part, up_part, um_part, wp_part, wm_part, obj_part = [], [], [], [], [], [], [], [], [], [], [], [], []
 
     for target_i in tqdm(range(I), desc="Optimizing Stepwise for each target_i"):
         model = gp.Model(f"Stepwise_Internal_Optimization_{target_i}")
         model.setParam("OutputFlag", 0)
-        model.setParam("MIPGap", 1e-2)
-        model.setParam("Heuristics", 0.3)
-        model.setParam("TimeLimit", 60*60*2.5)
+        model.setParam("MIPGap", 1e-7)
 
         x = model.addVars(T, vtype=GRB.CONTINUOUS, lb=0, name="x")
         yp = model.addVars(T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_plus")
@@ -291,7 +297,7 @@ def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM
         model.update()
 
         obj = gp.quicksum(P_DA[t] * x[t] for t in range(T)) \
-            + gp.quicksum((1/S) * (P_RT[t, s] * yp[t, s] - P_PN[t, s] * ym[t, s]) for t in range(T) for s in range(S)) \
+            + gp.quicksum((1/S) * (P_RT[t, s] * yp[t, s] - P_PN[t] * ym[t, s]) for t in range(T) for s in range(S)) \
             + gp.quicksum((1/S) * (
                 gp.quicksum(
                     RP[target_i, t, s][b][1] * (wp[t, s, b] + up[t, s, b] * RP[target_i, t, s][b][0])
@@ -338,16 +344,14 @@ def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM
                 if bp < BP[target_i, t, s] - 1:
                     WIDTH = RP[target_i, t, s][bp + 1][0] - RP[target_i, t, s][bp][0]
                 else:
-                    # WIDTH = max(1e-6, total_demand_without[target_i, t, s] - RP[target_i, t, s][bp][0])
-                    WIDTH = max(1e-6, 1000 - RP[target_i, t, s][bp][0])
+                    WIDTH = max(1e-6, total_demand_without[target_i, t, s] - RP[target_i, t, s][bp][0])
                 model.addConstr(wp[t, s, bp] <= up[t, s, bp] * WIDTH)
 
             for bm in range(BM[target_i, t, s]):
                 if bm < BM[target_i, t, s] - 1:
                     WIDTH = RM[target_i, t, s][bm + 1][0] - RM[target_i, t, s][bm][0]
                 else:
-                    # WIDTH = max(1e-6, total_supply_without[target_i, t, s] - RM[target_i, t, s][bm][0])
-                    WIDTH = max(1e-6, 1000 - RM[target_i, t, s][bm][0])
+                    WIDTH = max(1e-6, total_supply_without[target_i, t, s] - RM[target_i, t, s][bm][0])
                 model.addConstr(wm[t, s, bm] <= um[t, s, bm] * WIDTH)
 
         model.optimize()
@@ -388,24 +392,14 @@ def stepwise_optimize_forall(I, T, S, R, K, K0, P_DA, P_RT, P_PN, RP, RM, BP, BM
 
     for target_i in range(I):
         for s, t in product(range(S), range(T)):
-            # RP_CLEARED 계산
-            rp_found = False
             for bp in range(BP[target_i, t, s]):
                 if round(up_part[target_i][t, s, bp]) == 1:
                     RP_CLEARED[target_i, t, s] = RP[target_i, t, s][bp][1]
-                    rp_found = True
                     break
-            if not rp_found:
-                RP_CLEARED[target_i, t, s] = -1e7
-
-            # RM_CLEARED 계산
-            rm_found = False
             for bm in range(BM[target_i, t, s]):
                 if round(um_part[target_i][t, s, bm]) == 1:
                     RM_CLEARED[target_i, t, s] = RM[target_i, t, s][bm][1]
-                    rm_found = True
                     break
-            if not rm_found:
-                RM_CLEARED[target_i, t, s] = 1e7
-
     return x_part, yp_part, ym_part, z_part, zc_part, zd_part, dp_part, dm_part, up_part, um_part, wp_part, wm_part, obj_part, RP_CLEARED, RM_CLEARED
+
+

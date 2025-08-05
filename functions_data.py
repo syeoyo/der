@@ -4,19 +4,18 @@ import matplotlib.pyplot as plt
 import gurobipy as gp
 from gurobipy import GRB
 import os
+from itertools import product
 
-def load_parameters(I, T, generation_data):
-    S=200
-    randomness_level="high"
-    R = generate_randomized_generation(I, T, S, generation_data, randomness_level)
-    P_RT = generate_rt_scenarios(S, randomness_level)
+def load_parameters(I, T, generation_data, S, randomness_level, random_seed):
+    R = generate_randomized_generation(I, T, S, generation_data, randomness_level, random_seed)
+    P_RT = generate_rt_scenarios(S, randomness_level, random_seed)
     K = np.full(I, 100)
     K0 = np.full(I, 0)
     M1 = np.maximum(R, K[:, None, None]).max()
     M2 = max(R.sum(axis=0).max(), K.sum())
 
-    print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', M1={M1:.2f}, M2={M2:.2f}")
-    return S, R, P_RT, K, K0, M1, M2
+    print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', Random Seed={random_seed}, M1={M1:.2f}, M2={M2:.2f}")
+    return R, P_RT, K, K0, M1, M2
 
 def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
@@ -75,22 +74,21 @@ def load_generation_data(include_files = None, date_filter = None):
 
     return generation_data, I, T
 
-def load_price_data(scale_da=1.3, scale_penalty=1.5, region="N.Y.C."):
+def load_price_data(P_RT, scale_da=1.3, scale_penalty=1.5, region="N.Y.C."):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
     ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour
     nyc_data = ny_da[ny_da["Name"] == region]
     
     P_DA = np.array(nyc_data["LBMP ($/MWHr)"].astype(float)) * float(scale_da)
-    P_PN = P_DA * float(scale_penalty)
+    P_PN = np.maximum(P_DA[:, None], P_RT) * float(scale_penalty)
     return P_DA, P_PN
 
-def generate_rt_scenarios(S, randomness_level):
+def generate_rt_scenarios(S, randomness_level, random_seed):
     ny_rt = pd.read_csv("data/price/20220718rt.csv")
     ny_rt["Time Stamp"] = pd.to_datetime(ny_rt["Time Stamp"])
     nyc_rt = ny_rt[ny_rt["Name"] == "N.Y.C."].copy() 
 
-    # Extract the start of the day and filter only the first 24 hours
     start_of_day = nyc_rt["Time Stamp"].min().floor("D")
     end_of_day = start_of_day + pd.Timedelta(hours=23)
     nyc_rt = nyc_rt[(nyc_rt["Time Stamp"] >= start_of_day) & (nyc_rt["Time Stamp"] <= end_of_day)]
@@ -101,11 +99,11 @@ def generate_rt_scenarios(S, randomness_level):
     price_hourly = hourly_avg["LBMP ($/MWHr)"].to_numpy()
     T = len(price_hourly)
 
-    np.random.seed(11)
+    np.random.seed(random_seed)
     noise_ranges = {
         "low": (0.95, 1.05),
         "medium": (0.85, 1.15),
-        "high": (0.5, 1.5),
+        "high": (0.7, 1.3),
     }
 
     if randomness_level not in noise_ranges:
@@ -118,8 +116,8 @@ def generate_rt_scenarios(S, randomness_level):
 
     return P_RT
 
-def generate_randomized_generation(I, T, S, data, randomness_level):
-    np.random.seed(1)
+def generate_randomized_generation(I, T, S, data, randomness_level, random_seed):
+    np.random.seed(random_seed)
 
     noise_ranges = {
         "low": (0.8, 1.2),
@@ -458,3 +456,462 @@ def plot_summary(model, K, P_DA, P_RT, P_PN, a_vals, bp_vals, bm_vals, g_vals, s
 
     plt.tight_layout()
     plt.show()
+
+def save_scenario_data(R, P_DA, P_RT, P_PN, I, T, S, seed, randomness_level, base_dir):
+    save_dir = os.path.join(base_dir, f"i_{I}_s_{S}", f"seed_{seed}_level_{randomness_level}")
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
+    print(f"🔄 시나리오 데이터 저장 중... (폴더: {save_dir})")
+    
+    R_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        R_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'R': R[i, t, s]
+        })
+    pd.DataFrame(R_data).to_csv(f"{save_dir}/R.csv", index=False)
+    print("✅ R.csv 저장 완료")
+    
+    P_DA_data = []
+    for t in range(T):
+        P_DA_data.append({
+            't': t,
+            'P_DA': P_DA[t]
+        })
+    pd.DataFrame(P_DA_data).to_csv(f"{save_dir}/P_DA.csv", index=False)
+    print("✅ P_DA.csv 저장 완료")
+    
+    P_RT_data = []
+    for t, s in product(range(T), range(S)):
+        P_RT_data.append({
+            't': t,
+            's': s,
+            'P_RT': P_RT[t, s]
+        })
+    pd.DataFrame(P_RT_data).to_csv(f"{save_dir}/P_RT.csv", index=False)
+    print("✅ P_RT.csv 저장 완료")
+    
+    P_PN_data = []
+    for t, s in product(range(T), range(S)):
+        P_PN_data.append({
+            't': t,
+            's': s,
+            'P_PN': P_PN[t, s]
+        })
+    pd.DataFrame(P_PN_data).to_csv(f"{save_dir}/P_PN.csv", index=False)
+    print("✅ P_PN.csv 저장 완료")
+    
+    print(f"🎉 모든 시나리오 데이터가 '{save_dir}' 폴더에 저장되었습니다!")
+    print(f"📁 총 4개 파일 생성")
+    
+    return save_dir
+
+def save_holistic_results(x_hol, a_hol, yp_hol, ym_hol, z_hol, zc_hol, zd_hol, 
+                         ep_hol, bp_hol, em_hol, bm_hol, d_hol, dp_hol, dm_hol, 
+                         obj_hol, I, T, S, seed, randomness_level, base_dir):
+    
+    save_dir = os.path.join(base_dir, f"i_{I}_s_{S}", f"seed_{seed}_level_{randomness_level}")
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
+    print(f"🔄 최적화 결과 저장 중... (폴더: {save_dir})")
+    
+    x_data = []
+    for i, t in product(range(I), range(T)):
+        x_data.append({
+            'i': i,
+            't': t,
+            'x_hol': x_hol[i, t]
+        })
+    pd.DataFrame(x_data).to_csv(f"{save_dir}/x_hol.csv", index=False)
+    print("✅ x_hol.csv 저장 완료")
+    
+    a_data = []
+    for t in range(T):
+        a_data.append({
+            't': t,
+            'a_hol': a_hol[t]
+        })
+    pd.DataFrame(a_data).to_csv(f"{save_dir}/a_hol.csv", index=False)
+    print("✅ a_hol.csv 저장 완료")
+    
+    yp_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        yp_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'yp_hol': yp_hol[i, t, s]
+        })
+    pd.DataFrame(yp_data).to_csv(f"{save_dir}/yp_hol.csv", index=False)
+    print("✅ yp_hol.csv 저장 완료")
+    
+    ym_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        ym_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'ym_hol': ym_hol[i, t, s]
+        })
+    pd.DataFrame(ym_data).to_csv(f"{save_dir}/ym_hol.csv", index=False)
+    print("✅ ym_hol.csv 저장 완료")
+    
+    z_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        z_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'z_hol': z_hol[i, t, s]
+        })
+    pd.DataFrame(z_data).to_csv(f"{save_dir}/z_hol.csv", index=False)
+    print("✅ z_hol.csv 저장 완료")
+    
+    zc_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        zc_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'zc_hol': zc_hol[i, t, s]
+        })
+    pd.DataFrame(zc_data).to_csv(f"{save_dir}/zc_hol.csv", index=False)
+    print("✅ zc_hol.csv 저장 완료")
+    
+    zd_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        zd_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'zd_hol': zd_hol[i, t, s]
+        })
+    pd.DataFrame(zd_data).to_csv(f"{save_dir}/zd_hol.csv", index=False)
+    print("✅ zd_hol.csv 저장 완료")
+    
+    ep_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        ep_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'ep_hol': ep_hol[i, t, s]
+        })
+    pd.DataFrame(ep_data).to_csv(f"{save_dir}/ep_hol.csv", index=False)
+    print("✅ ep_hol.csv 저장 완료")
+    
+    bp_data = []
+    for t, s in product(range(T), range(S)):
+        bp_data.append({
+            't': t,
+            's': s,
+            'bp_hol': bp_hol[t, s]
+        })
+    pd.DataFrame(bp_data).to_csv(f"{save_dir}/bp_hol.csv", index=False)
+    print("✅ bp_hol.csv 저장 완료")
+    
+    em_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        em_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'em_hol': em_hol[i, t, s]
+        })
+    pd.DataFrame(em_data).to_csv(f"{save_dir}/em_hol.csv", index=False)
+    print("✅ em_hol.csv 저장 완료")
+    
+    bm_data = []
+    for t, s in product(range(T), range(S)):
+        bm_data.append({
+            't': t,
+            's': s,
+            'bm_hol': bm_hol[t, s]
+        })
+    pd.DataFrame(bm_data).to_csv(f"{save_dir}/bm_hol.csv", index=False)
+    print("✅ bm_hol.csv 저장 완료")
+    
+    d_data = []
+    for i, j, t, s in product(range(I), range(I), range(T), range(S)):
+        if i != j:
+            d_data.append({
+                'i': i,
+                'j': j,
+                't': t,
+                's': s,
+                'd_hol': d_hol[i, j, t, s]
+            })
+    pd.DataFrame(d_data).to_csv(f"{save_dir}/d_hol.csv", index=False)
+    print("✅ d_hol.csv 저장 완료")
+    
+    dp_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        dp_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'dp_hol': dp_hol[i, t, s]
+        })
+    pd.DataFrame(dp_data).to_csv(f"{save_dir}/dp_hol.csv", index=False)
+    print("✅ dp_hol.csv 저장 완료")
+    
+    dm_data = []
+    for i, t, s in product(range(I), range(T), range(S)):
+        dm_data.append({
+            'i': i,
+            't': t,
+            's': s,
+            'dm_hol': dm_hol[i, t, s]
+        })
+    pd.DataFrame(dm_data).to_csv(f"{save_dir}/dm_hol.csv", index=False)
+    print("✅ dm_hol.csv 저장 완료")
+    
+    obj_data = [{
+        'obj_hol': obj_hol,
+        'I': I,
+        'T': T,
+        'S': S,
+        'seed': seed,
+        'randomness_level': randomness_level
+    }]
+    pd.DataFrame(obj_data).to_csv(f"{save_dir}/obj_hol.csv", index=False)
+    print("✅ obj_hol.csv 저장 완료")
+    
+    print(f"🎉 모든 변수가 '{save_dir}' 폴더에 저장되었습니다!")
+    print(f"📁 총 {15}개 파일 생성")
+    
+    return save_dir
+
+def load_scenario_data(I, T, S, seed, randomness_level, base_dir):
+    save_dir = os.path.join(base_dir, f"i_{I}_s_{S}", f"seed_{seed}_level_{randomness_level}")
+    print(f"🔄 시나리오 데이터 불러오는 중... (폴더: {save_dir})")
+    
+    results = {}
+    
+    # R 불러오기 (I × T × S)
+    R_df = pd.read_csv(f"{save_dir}/R.csv")
+    R = np.zeros((I, T, S))
+    for _, row in R_df.iterrows():
+        R[int(row['i']), int(row['t']), int(row['s'])] = row['R']
+    results['R'] = R
+    print("✅ R 불러오기 완료")
+    
+    # P_DA 불러오기 (T,)
+    P_DA_df = pd.read_csv(f"{save_dir}/P_DA.csv")
+    P_DA = np.zeros(T)
+    for _, row in P_DA_df.iterrows():
+        P_DA[int(row['t'])] = row['P_DA']
+    results['P_DA'] = P_DA
+    print("✅ P_DA 불러오기 완료")
+    
+    # P_RT 불러오기 (T × S)
+    P_RT_df = pd.read_csv(f"{save_dir}/P_RT.csv")
+    P_RT = np.zeros((T, S))
+    for _, row in P_RT_df.iterrows():
+        P_RT[int(row['t']), int(row['s'])] = row['P_RT']
+    results['P_RT'] = P_RT
+    print("✅ P_RT 불러오기 완료")
+    
+    # P_PN 불러오기 (T × S)
+    P_PN_df = pd.read_csv(f"{save_dir}/P_PN.csv")
+    P_PN = np.zeros((T, S))
+    for _, row in P_PN_df.iterrows():
+        P_PN[int(row['t']), int(row['s'])] = row['P_PN']
+    results['P_PN'] = P_PN
+    print("✅ P_PN 불러오기 완료")
+    
+    print(f"🎉 모든 시나리오 데이터 불러오기 완료!")
+    return results
+
+def load_single_batch(I, T, S, seed, randomness_level, base_dir):
+    save_dir = os.path.join(base_dir, f"i_{I}_s_{S}", f"seed_{seed}_level_{randomness_level}")
+    print(f"🔄 단일 배치 불러오는 중... (폴더: {save_dir})")
+    
+    results = {}
+    
+    # Scenario data
+    R_df = pd.read_csv(f"{save_dir}/R.csv")
+    R = np.zeros((I, T, S))
+    for _, row in R_df.iterrows():
+        R[int(row['i']), int(row['t']), int(row['s'])] = row['R']
+    results['R'] = R
+    
+    P_DA_df = pd.read_csv(f"{save_dir}/P_DA.csv")
+    P_DA = np.zeros(T)
+    for _, row in P_DA_df.iterrows():
+        P_DA[int(row['t'])] = row['P_DA']
+    results['P_DA'] = P_DA
+    
+    P_RT_df = pd.read_csv(f"{save_dir}/P_RT.csv")
+    P_RT = np.zeros((T, S))
+    for _, row in P_RT_df.iterrows():
+        P_RT[int(row['t']), int(row['s'])] = row['P_RT']
+    results['P_RT'] = P_RT
+    
+    P_PN_df = pd.read_csv(f"{save_dir}/P_PN.csv")
+    P_PN = np.zeros((T, S))
+    for _, row in P_PN_df.iterrows():
+        P_PN[int(row['t']), int(row['s'])] = row['P_PN']
+    results['P_PN'] = P_PN
+    
+    # Optimization results
+    x_df = pd.read_csv(f"{save_dir}/x_hol.csv")
+    x_hol = np.zeros((I, T))
+    for _, row in x_df.iterrows():
+        x_hol[int(row['i']), int(row['t'])] = row['x_hol']
+    results['x_hol'] = x_hol
+    
+    a_df = pd.read_csv(f"{save_dir}/a_hol.csv")
+    a_hol = np.zeros(T)
+    for _, row in a_df.iterrows():
+        a_hol[int(row['t'])] = row['a_hol']
+    results['a_hol'] = a_hol
+    
+    yp_df = pd.read_csv(f"{save_dir}/yp_hol.csv")
+    yp_hol = np.zeros((I, T, S))
+    for _, row in yp_df.iterrows():
+        yp_hol[int(row['i']), int(row['t']), int(row['s'])] = row['yp_hol']
+    results['yp_hol'] = yp_hol
+    
+    ym_df = pd.read_csv(f"{save_dir}/ym_hol.csv")
+    ym_hol = np.zeros((I, T, S))
+    for _, row in ym_df.iterrows():
+        ym_hol[int(row['i']), int(row['t']), int(row['s'])] = row['ym_hol']
+    results['ym_hol'] = ym_hol
+    
+    z_df = pd.read_csv(f"{save_dir}/z_hol.csv")
+    z_hol = np.zeros((I, T, S))
+    for _, row in z_df.iterrows():
+        z_hol[int(row['i']), int(row['t']), int(row['s'])] = row['z_hol']
+    results['z_hol'] = z_hol
+    
+    zc_df = pd.read_csv(f"{save_dir}/zc_hol.csv")
+    zc_hol = np.zeros((I, T, S))
+    for _, row in zc_df.iterrows():
+        zc_hol[int(row['i']), int(row['t']), int(row['s'])] = row['zc_hol']
+    results['zc_hol'] = zc_hol
+    
+    zd_df = pd.read_csv(f"{save_dir}/zd_hol.csv")
+    zd_hol = np.zeros((I, T, S))
+    for _, row in zd_df.iterrows():
+        zd_hol[int(row['i']), int(row['t']), int(row['s'])] = row['zd_hol']
+    results['zd_hol'] = zd_hol
+    
+    ep_df = pd.read_csv(f"{save_dir}/ep_hol.csv")
+    ep_hol = np.zeros((I, T, S))
+    for _, row in ep_df.iterrows():
+        ep_hol[int(row['i']), int(row['t']), int(row['s'])] = row['ep_hol']
+    results['ep_hol'] = ep_hol
+    
+    bp_df = pd.read_csv(f"{save_dir}/bp_hol.csv")
+    bp_hol = np.zeros((T, S))
+    for _, row in bp_df.iterrows():
+        bp_hol[int(row['t']), int(row['s'])] = row['bp_hol']
+    results['bp_hol'] = bp_hol
+    
+    em_df = pd.read_csv(f"{save_dir}/em_hol.csv")
+    em_hol = np.zeros((I, T, S))
+    for _, row in em_df.iterrows():
+        em_hol[int(row['i']), int(row['t']), int(row['s'])] = row['em_hol']
+    results['em_hol'] = em_hol
+    
+    bm_df = pd.read_csv(f"{save_dir}/bm_hol.csv")
+    bm_hol = np.zeros((T, S))
+    for _, row in bm_df.iterrows():
+        bm_hol[int(row['t']), int(row['s'])] = row['bm_hol']
+    results['bm_hol'] = bm_hol
+    
+    d_df = pd.read_csv(f"{save_dir}/d_hol.csv")
+    d_hol = np.zeros((I, I, T, S))
+    for _, row in d_df.iterrows():
+        d_hol[int(row['i']), int(row['j']), int(row['t']), int(row['s'])] = row['d_hol']
+    results['d_hol'] = d_hol
+    
+    dp_df = pd.read_csv(f"{save_dir}/dp_hol.csv")
+    dp_hol = np.zeros((I, T, S))
+    for _, row in dp_df.iterrows():
+        dp_hol[int(row['i']), int(row['t']), int(row['s'])] = row['dp_hol']
+    results['dp_hol'] = dp_hol
+    
+    dm_df = pd.read_csv(f"{save_dir}/dm_hol.csv")
+    dm_hol = np.zeros((I, T, S))
+    for _, row in dm_df.iterrows():
+        dm_hol[int(row['i']), int(row['t']), int(row['s'])] = row['dm_hol']
+    results['dm_hol'] = dm_hol
+    
+    obj_df = pd.read_csv(f"{save_dir}/obj_hol.csv")
+    obj_hol = obj_df['obj_hol'].iloc[0]
+    results['obj_hol'] = obj_hol
+    
+    print(f"🎉 단일 배치 불러오기 완료!")
+    return results
+
+def load_batches(I, S, seed_list=None, level_list=None, base_dir=None):
+    parent_dir = os.path.join(base_dir, f"i_{I}_s_{S}")
+    print(f"🔄 필터링된 배치 불러오는 중... (폴더: {parent_dir})")
+    
+    filtered_results = {}
+    
+    if not os.path.exists(parent_dir):
+        print(f"❌ 폴더가 존재하지 않습니다: {parent_dir}")
+        return filtered_results
+    
+    for subdir in os.listdir(parent_dir):
+        if subdir.startswith("seed_") and "_level_" in subdir:
+            parts = subdir.split("_")
+            seed = int(parts[1])
+            level = parts[3]
+            
+            if seed_list is not None and seed not in seed_list:
+                continue
+            if level_list is not None and level not in level_list:
+                continue
+                
+            print(f"  📂 {subdir} 로딩 중...")
+            batch_results = load_single_batch(I, 24, S, seed, level, base_dir)
+            filtered_results[f"seed_{seed}_level_{level}"] = batch_results
+    
+    print(f"🎉 총 {len(filtered_results)}개 배치 불러오기 완료!")
+    return filtered_results
+
+def get_available_batches(I, S, base_dir):
+    parent_dir = os.path.join(base_dir, f"i_{I}_s_{S}")
+    available_batches = []
+    
+    if not os.path.exists(parent_dir):
+        return available_batches
+    
+    for subdir in os.listdir(parent_dir):
+        if subdir.startswith("seed_") and "_level_" in subdir:
+            parts = subdir.split("_")
+            seed = int(parts[1])
+            level = parts[3]
+            available_batches.append((seed, level))
+    
+    return available_batches
+
+def check_batch_exists(I, S, seed, randomness_level, base_dir):
+    save_dir = os.path.join(base_dir, f"i_{I}_s_{S}", f"seed_{seed}_level_{randomness_level}")
+    if not os.path.exists(save_dir):
+        return False, f"폴더가 존재하지 않습니다: {save_dir}"
+    
+    required_files = [
+        'x_hol.csv', 'a_hol.csv', 'yp_hol.csv', 'ym_hol.csv', 'z_hol.csv',
+        'zc_hol.csv', 'zd_hol.csv', 'ep_hol.csv', 'bp_hol.csv', 'em_hol.csv',
+        'bm_hol.csv', 'd_hol.csv', 'dp_hol.csv', 'dm_hol.csv', 'obj_hol.csv',
+        'R.csv', 'P_DA.csv', 'P_RT.csv', 'P_PN.csv'
+    ]
+    
+    missing_files = []
+    for file in required_files:
+        if not os.path.exists(os.path.join(save_dir, file)):
+            missing_files.append(file)
+    
+    if missing_files:
+        return False, f"누락된 파일: {missing_files}"
+    else:
+        return True, "모든 파일이 존재합니다"

@@ -14,7 +14,7 @@ def calculate_total_profit_best_case(x_part, yp_part, ym_part, dp_part, dm_part,
             for s in range(S):
                 basic_profit = (x_part[target_i][t] * P_DA[t] + 
                               yp_part[target_i][t, s] * P_RT[t, s] - 
-                              ym_part[target_i][t, s] * P_PN[t])
+                              ym_part[target_i][t, s] * P_PN[t, s])
 
                 # dp_others = sum(dp_part[i][t, s] for i in range(I) if i != target_i)
                 # dm_others = sum(dm_part[i][t, s] for i in range(I) if i != target_i)
@@ -31,7 +31,7 @@ def calculate_total_profit_best_case(x_part, yp_part, ym_part, dp_part, dm_part,
                 internal_profit = (RP_CLEARED[target_i, t, s] * sold_internal + 
                                  P_RT[t, s] * sold_rt - 
                                  RM_CLEARED[target_i, t, s] * bought_internal - 
-                                 P_PN[t] * bought_penalty)
+                                 P_PN[t, s] * bought_penalty)
                 
                 profit += (basic_profit + internal_profit) / S
         
@@ -49,7 +49,7 @@ def calculate_total_profit_worst_case(x_part, yp_part, ym_part, dp_part, dm_part
             for s in range(S):
                 basic_profit = (x_part[target_i][t] * P_DA[t] + 
                               yp_part[target_i][t, s] * P_RT[t, s] - 
-                              ym_part[target_i][t, s] * P_PN[t])
+                              ym_part[target_i][t, s] * P_PN[t, s])
 
                 # dp_others = sum(dp_part[i][t, s] for i in range(I) if i != target_i)
                 # dm_others = sum(dm_part[i][t, s] for i in range(I) if i != target_i)
@@ -69,7 +69,7 @@ def calculate_total_profit_worst_case(x_part, yp_part, ym_part, dp_part, dm_part
                 internal_profit = (RP_CLEARED[target_i, t, s] * sold_internal + 
                                  P_RT[t, s] * sold_rt - 
                                  RM_CLEARED[target_i, t, s] * bought_internal - 
-                                 P_PN[t] * bought_penalty)
+                                 P_PN[t, s] * bought_penalty)
                 
                 profit += (basic_profit + internal_profit) / S
         
@@ -84,7 +84,7 @@ def calculate_total_profit_no_virtual_price(x_part, yp_part, ym_part, dp_part, d
         profit = 0
         for t in range(T):
             for s in range(S):
-                basic_profit = x_part[target_i][t] * P_DA[t] + (yp_part[target_i][t, s]+dp_part[target_i][t, s]) * P_RT[t, s] - (ym_part[target_i][t, s]+dm_part[target_i][t, s]) * P_PN[t]
+                basic_profit = x_part[target_i][t] * P_DA[t] + (yp_part[target_i][t, s]+dp_part[target_i][t, s]) * P_RT[t, s] - (ym_part[target_i][t, s]+dm_part[target_i][t, s]) * P_PN[t, s]
 
                 profit += basic_profit / S
         
@@ -101,7 +101,7 @@ def evaluate_and_visualize_profits(x_ind, yp_ind, ym_ind, P_DA, P_RT, P_PN, NO_V
         profit = 0
         for t in range(T):
             for s in range(S):
-                profit += x_ind[i][t] * P_DA[t] + yp_ind[i][t, s] * P_RT[t, s] + ym_ind[i][t, s] * P_PN[t]
+                profit += x_ind[i][t] * P_DA[t] + yp_ind[i][t, s] * P_RT[t, s] - ym_ind[i][t, s] * P_PN[t, s]
         individual_profit.append(profit / S)
 
     df_profits = pd.DataFrame({
@@ -131,8 +131,7 @@ def evaluate_and_visualize_profits(x_ind, yp_ind, ym_ind, P_DA, P_RT, P_PN, NO_V
     plt.tight_layout()
     plt.show()
     
-    pd.DataFrame(df_profits)
-
+    return pd.DataFrame(df_profits)
 
 
 def compare_step_vs_ind(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind, ym_ind, 
@@ -165,6 +164,7 @@ def compare_step_vs_ind(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_in
             rho_p = np.mean(RP_CLEARED[target_i, t, :]) 
             rho_m = np.mean(RM_CLEARED[target_i, t, :])
             p_rt = np.mean(P_RT[t, :])
+            p_pn = np.mean(P_PN[t, :])
 
             sum_x_step += x_step 
             sum_x_ind += x_indv 
@@ -179,7 +179,7 @@ def compare_step_vs_ind(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_in
                 f"{t:>3} | "
                 f"{P_DA[t]:>8.2f} {x_step:>8.2f} {x_indv:>8.2f} || "
                 f"{rho_p:>15.2f} {dp_step:>8.2f} {p_rt:>8.2f} {yp_step:>8.2f} {yp_indv:>8.2f} || "
-                f"{rho_m:>15.2f} {dm_step:>8.2f} {P_PN[t]:>8.2f} {ym_step:>8.2f} {ym_indv:>8.2f}"
+                f"{rho_m:>15.2f} {dm_step:>8.2f} {p_pn:>8.2f} {ym_step:>8.2f} {ym_indv:>8.2f}"
             )
 
         print("-" * 145)
@@ -225,11 +225,12 @@ def print_summary_only(x_part, yp_part, ym_part, dp_part, dm_part, x_ind, yp_ind
         print(header)
         print("-" * 145)
         print(
-            f"{'{target_i}':>3} | "
+            f"{target_i:>3} | "
             f"{'':>8} {sum_x_step:>8.2f} {sum_x_ind:>8.2f} || "
             f"{'':>15} {sum_dp_step:>8.2f} {'':>8} {sum_yp_step:>8.2f} {sum_yp_ind:>8.2f} || "
             f"{'':>15} {sum_dm_step:>8.2f} {'':>8} {sum_ym_step:>8.2f} {sum_ym_ind:>8.2f}"
         )
+
 
 def compare_step_vs_hol(x_hol, ep_hol, em_hol, dp_hol, dm_hol, x_part, yp_part, ym_part, dp_part, dm_part, T, S, I):
     print("=" * 110)
@@ -262,8 +263,8 @@ def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRI
     for i in range(I):
             for t in range(T):
                 individual_profit += (x_ind[i][t] * P_DA[t] + 
-                                    np.mean([yp_ind[i][t, s] * P_RT[t, s] for s in range(S)]) + 
-                                    np.mean([ym_ind[i][t, s] * P_PN[t] for s in range(S)]))
+                                    np.mean([yp_ind[i][t, s] * P_RT[t, s] for s in range(S)]) - 
+                                    np.mean([ym_ind[i][t, s] * P_PN[t, s] for s in range(S)]))
 
     stepwise_profit_no_virtual_price = sum(NO_VIRTUAL_PRICE_PROFIT)
     stepwise_profit_worst_case = sum(WORST_CASE_PROFIT)
@@ -272,8 +273,8 @@ def calculate_aggregated_profit_evaluation(x_ind, yp_ind, ym_ind, NO_VIRTUAL_PRI
     aggregation_profit = 0
     for t in range(T):
         aggregation_profit += (a_hol[t] * P_DA[t] + 
-                                np.mean([bp_hol[t, s] * P_RT[t, s] for s in range(S)]) + 
-                                np.mean([bm_hol[t, s] * P_PN[t] for s in range(S)]))
+                                np.mean([bp_hol[t, s] * P_RT[t, s] for s in range(S)]) - 
+                                np.mean([bm_hol[t, s] * P_PN[t, s] for s in range(S)]))
 
     df_profit = pd.DataFrame({
             "Profit Type": ["Individual Profit", "Stepwise Profit (No Virtual Price)", 
