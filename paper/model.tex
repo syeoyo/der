@@ -9,6 +9,7 @@
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{mathabx}
+\usepackage{amsmath}
 
 \title{DER Models}
 \author{Seohyun Jang}
@@ -75,22 +76,43 @@
     \end{align}
 \end{subequations}
 
-\subsection{Aggregation with individual BTM storage control}
+\subsection{Aggregation with individual BTM storage control - y, d, e correlated}
 \begin{subequations}
     \begin{align}
         \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} \sum_{i \in I}x_{it} + \mathbb{E}\left[P_t^{RT}(\xi)\sum_{i \in I}e^+_{it}(\xi) - P_t^{PN}\sum_{i \in I}e^-_{it}(\xi)\right]\right)&\\ 
         &&\notag\\   
         \text{s.t.} \quad &R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
-        & R_{it}(\xi) + z^D_{it}(\xi) \geq y^+_{it}(\xi) +  z^C_{it}(\xi) &\\
-        &z_{i,t+1}(\xi) = z_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi)&\\
+        &R_{it}(\xi) + z^D_{it}(\xi) \geq y^+_{it}(\xi) +  z^C_{it}(\xi) &\\
+        &z_{i,t+1}(\xi) = z_{it}(\xi) + \eta^C z^C_{it}(\xi) - \frac{1}{\eta^D}z^D_{it}(\xi)&\\
         &z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i-z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i &\\
-        &e^+_{it}(\xi) = y^+_{it}(\xi) - \sum_{j \in I}d_{ijt}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - \sum_{j \in I}d_{jit}(\xi)&\\
-        &d_{iit}(\xi) = 0&\\
+        &e^+_{it}(\xi) = y^+_{it}(\xi) - d^+_{it}(\xi), \quad e^-_{it}(\xi) = y^-_{it}(\xi) - d^-_{it}(\xi)&\\
+        &\sum_{i \in I} d^+_{it}(\xi) = \sum_{i \in I} d^-_{it}(\xi)&\\
         &y^+_{it}(\xi) \leq M_1 \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M_1 (1 - \phi^1_{it}(\xi)) &\\
         &y^-_{it}(\xi) \leq M_1 \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M_1 (1 - \phi^2_{it}(\xi)) &\\
-        &z^C_{it}(\xi) \leq M_1 \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \phi^3_{it}(\xi)) &\\
-        &\sum_{i \in I}e^+_{it}(\xi) \leq M_2 \phi^4_{t}(\xi), \quad \sum_{i \in I}e^-_{it}(\xi) \leq M_2 (1 - \phi^4_{t}(\xi))&
+        &z^C_{it}(\xi) \leq M_1 \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M_1 (1 - \phi^3_{it}(\xi)) &
+        % &\sum_{i \in I}e^+_{it}(\xi) \leq M_2 \phi^4_{t}(\xi), \quad \sum_{i \in I}e^-_{it}(\xi) \leq M_2 (1 - \phi^4_{t}(\xi))&
     \end{align}
+\end{subequations}
+
+\subsection{Holistic Aggregation with individual BTM storage control - y, d independent}
+\begin{subequations}
+   \begin{align}
+       \text{max} \quad & \sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN}(\xi) \cdot y^-_{it}(\xi)\right]\right) \label{eq:5a}\\   
+       \text{s.t.} \quad 
+       & R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + d^+_{it}(\xi) - d^-_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) & \forall i \in I, t \in T \label{eq:5b}\\
+       & R_{it}(\xi) + z^D_{it}(\xi) \geq y^+_{it}(\xi) + d^+_{it}(\xi) + z^C_{it}(\xi) & \forall i \in I, t \in T \label{eq:5c}\\
+       & z_{i,t+1}(\xi) = z_{it}(\xi) + \eta^C z^C_{it}(\xi) - \frac{1}{\eta^D}z^D_{it}(\xi) & \forall i \in I, t \in T \label{eq:5d}\\
+       & z^D_{it}(\xi) \le z_{it}(\xi), \quad z^C_{it}(\xi) \le K_i - z_{it}(\xi), \quad 0 \leq z_{it}(\xi) \leq K_i & \forall i \in I, t \in T \label{eq:5e}\\
+       & y^+_{it}(\xi) \leq M \phi^1_{it}(\xi), \quad y^-_{it}(\xi) \leq M (1 - \phi^1_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5f}\\
+       & y^-_{it}(\xi) \leq M \phi^2_{it}(\xi), \quad z^C_{it}(\xi) \leq M (1 - \phi^2_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5g}\\
+       & z^C_{it}(\xi) \leq M \phi^3_{it}(\xi), \quad z^D_{it}(\xi) \leq M (1 - \phi^3_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5h}\\
+       & d^+_{it}(\xi) \leq M \phi^4_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^4_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5i}\\
+       & z^C_{it}(\xi) \leq M \phi^5_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^5_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5j}\\
+       & y^+_{it}(\xi) \leq M \phi^6_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^6_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5k}\\
+       & y^-_{it}(\xi) \leq M \phi^7_{it}(\xi), \quad d^+_{it}(\xi) \leq M (1 - \phi^7_{it}(\xi)) & \forall i \in I, t \in T \label{eq:5l}\\
+       & \sum_{i \in I} d^+_{it}(\xi) = \sum_{i \in I} d^-_{it}(\xi) \quad : \quad \lambda_t(\xi) & \forall t \in T \label{eq:5m} \\
+       & \Pi^{IND}_i \leq \Pi^{HOL}_i & \forall i \in I
+   \end{align}
 \end{subequations}
 
 \subsection{Aggregation with direct control over storage}
@@ -199,10 +221,10 @@
     \end{align}
 \end{subequations}
 
-\subsection{Individual Replay}
+\subsection{Price as DV - Market Clearing ver.}
 \begin{subequations}
     \begin{align}
-        \text{max} \quad &\sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN}(\xi) \cdot y^-_{it}(\xi) + \rho^{+}_{t} \cdot d^+_{it}(\xi) - \rho^-_{t} \cdot d^-_{it}(\xi)\right]\right)&\\   
+        \text{max} \quad & \sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN}(\xi) \cdot y^-_{it}(\xi) + \rho_{t} \cdot d^+_{it}(\xi) - \rho_{t} \cdot d^-_{it}(\xi)\right]\right)&\\   
         \text{s.t.} \quad 
         & R_{it}(\xi) - x_{it} = y_{it}^{+}(\xi) - y_{it}^{-}(\xi) + d^+_{it}(\xi) - d^-_{it}(\xi) + z^C_{it}(\xi) - z^D_{it}(\xi) & \forall i \in I, t \in T\\
         & R_{it}(\xi) + z^D_{it}(\xi) \geq y^+_{it}(\xi) + d^+_{it}(\xi) + z^C_{it}(\xi) & \forall i \in I, t \in T\\
@@ -214,8 +236,83 @@
         & d^+_{it}(\xi) \leq M \phi^4_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^4_{it}(\xi)) & \forall i \in I, t \in T\\
         & z^C_{it}(\xi) \leq M \phi^5_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^5_{it}(\xi)) & \forall i \in I, t \in T\\
         & y^+_{it}(\xi) \leq M \phi^6_{it}(\xi), \quad d^-_{it}(\xi) \leq M (1 - \phi^6_{it}(\xi)) & \forall i \in I, t \in T\\
-        & y^-_{it}(\xi) \leq M \phi^7_{it}(\xi), \quad d^+_{it}(\xi) \leq M (1 - \phi^7_{it}(\xi)) & \forall i \in I, t \in T
-        \end{align}
+        & y^-_{it}(\xi) \leq M \phi^7_{it}(\xi), \quad d^+_{it}(\xi) \leq M (1 - \phi^7_{it}(\xi)) & \forall i \in I, t \in T\\
+        & \sum_{i \in I} d^+_{it}(\xi) = \sum_{i \in I} d^-_{it}(\xi) & \forall t \in T\\
+        & \rho_t^{MIN} \leq \rho_{t} \leq \rho_t^{MAX}  & \forall t \in T \\
+        & \Pi_i^{END} = \sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \mathbb{E}\left[P_t^{RT}(\xi) \cdot y^+_{it}(\xi) - P_t^{PN}(\xi) \cdot y^-_{it}(\xi) + \rho^{+}_{t} \cdot d^+_{it}(\xi) - \rho^-_{t} \cdot d^-_{it}(\xi)\right]\right) & \forall i \in I\\
+        & \Pi^{IND}_i \leq \Pi^{END}_i & \forall i \in I
+        % & \sum_{i \in I}\Pi^{END}_i \leq \Pi^{HOL} &
+    \end{align}
+\end{subequations}
+
+\section{Lagrangian Dual}
+
+\subsection{Holistic Aggregation}
+
+\begin{subequations}\label{eq:holistic_model}
+   \begin{align}
+       \text{max} \quad &\sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \frac{1}{S}\sum_{s \in S}\left(P_t^{RT}(\xi_s) \cdot y^+_{it}(\xi_s) - P_t^{PN}(\xi_s) \cdot y^-_{it}(\xi_s)\right) \right) \label{eq:objective}\\   
+       \text{s.t.} \quad 
+       & R_{it}(\xi_s) - x_{it} = y_{it}^{+}(\xi_s) - y_{it}^{-}(\xi_s) + d^+_{it}(\xi_s) - d^-_{it}(\xi_s) + z^C_{it}(\xi_s) - z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \label{eq:energy_balance}\\
+       & R_{it}(\xi_s) + z^D_{it}(\xi_s) \geq y^+_{it}(\xi_s) + d^+_{it}(\xi_s) + z^C_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \label{eq:feasibility}\\
+       & z_{i,t+1}(\xi_s) = z_{it}(\xi_s) + \eta^C z^C_{it}(\xi_s) - \frac{1}{\eta^D} z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \label{eq:battery_dynamics}\\
+       & z^D_{it}(\xi_s) \le z_{it}(\xi_s), \quad z^C_{it}(\xi_s) \le K_i - z_{it}(\xi_s), \quad 0 \leq z_{it}(\xi_s) \leq K_i & \forall i \in I, t \in T, s \in S \label{eq:battery_limits}\\
+       & \sum_{i \in I} d^+_{it}(\xi_s) = \sum_{i \in I} d^-_{it}(\xi_s) \quad : \quad \lambda_t(\xi_s) & \forall t \in T, s \in S \label{eq:balance_constraint}\\
+       & y^+_{it}(\xi_s) \leq M \phi^1_{it}(\xi_s), \quad y^-_{it}(\xi_s) \leq M (1 - \phi^1_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb1}\\
+       & d^+_{it}(\xi_s) \leq M \phi^2_{it}(\xi_s), \quad d^-_{it}(\xi_s) \leq M (1 - \phi^2_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb2}\\
+       & y^+_{it}(\xi_s) \leq M \phi^3_{it}(\xi_s), \quad d^-_{it}(\xi_s) \leq M (1 - \phi^3_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb3}\\
+       & y^-_{it}(\xi_s) \leq M \phi^4_{it}(\xi_s), \quad d^+_{it}(\xi_s) \leq M (1 - \phi^4_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb4}\\
+       & y^-_{it}(\xi_s) \leq M \phi^5_{it}(\xi_s), \quad z^C_{it}(\xi_s) \leq M (1 - \phi^5_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb5}\\
+       & d^-_{it}(\xi_s) \leq M \phi^6_{it}(\xi_s), \quad z^C_{it}(\xi_s) \leq M (1 - \phi^6_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \label{eq:arb6}
+   \end{align}
+\end{subequations}
+\\\noindent
+\eqref{eq:objective}: Maximizing total expected revenue of the aggregation from day-ahead trading and real-time balancing. \\
+\eqref{eq:energy_balance}: Energy balance equation ensuring the net energy flows regarding day-ahead commitment, real-time trading, internal trading, and battery operations equals the amount of generation.\\
+\eqref{eq:feasibility}: Feasibility constraint ensuring that total energy outflows do not exceed available energy.\\
+\eqref{eq:battery_dynamics}: Battery state-of-charge dynamics with charging and discharge efficiency.\\
+\eqref{eq:battery_limits}: Battery operational limits ensuring operations do not exceed currently available capacity.\\
+\eqref{eq:balance_constraint}: Internal trading balance constraint ensuring internal pool supply and demand are cleared, with dual variable $\lambda_t(\xi_s)$ representing the internal settlement price.\\
+\eqref{eq:arb1}-\eqref{eq:arb4}: Arbitrage control measures preventing the simultaneous buying and selling of energy within and among markets\\
+\eqref{eq:arb5}-\eqref{eq:arb6}: Arbitrage control measures prohibiting the purchase of energy for the purpose of charging the battery\\
+
+\subsection{Lagrangian Relaxed Holistic Aggregation}
+\begin{subequations}
+    \begin{align} 
+        \text{max} \quad &\sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \frac{1}{S}\sum_{s \in S}\left(P_t^{RT}(\xi_s) \cdot y^+_{it}(\xi_s) - P_t^{PN}(\xi_s) \cdot y^-_{it}(\xi_s)\right) \right)\\
+        &+ \sum_{s \in S} \sum_{t \in T} \lambda_{t}(\xi_s) \left( \sum_{i\in I} d^-_{it}(\xi_s) - \sum_{i\in I} d^+_{it}(\xi_s) \right)& \notag \\
+        \text{s.t.} \quad 
+        & R_{it}(\xi_s) - x_{it} = y_{it}^{+}(\xi_s) - y_{it}^{-}(\xi_s) + d^+_{it}(\xi_s) - d^-_{it}(\xi_s) + z^C_{it}(\xi_s) - z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S\\
+        & R_{it}(\xi_s) + z^D_{it}(\xi_s) \geq y^+_{it}(\xi_s) + d^+_{it}(\xi_s) + z^C_{it}(\xi_s) & \forall i \in I, t \in T, s \in S\\
+        & z_{i,t+1}(\xi_s) = z_{it}(\xi_s) + \eta^C z^C_{it}(\xi_s) - \frac{1}{\eta^D} z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & z^D_{it}(\xi_s) \le z_{it}(\xi_s), \quad z^C_{it}(\xi_s) \le K_i - z_{it}(\xi_s), \quad 0 \leq z_{it}(\xi_s) \leq K_i & \forall i \in I, t \in T, s \in S\\
+        & y^+_{it}(\xi_s) \leq M \phi^1_{it}(\xi_s), \quad y^-_{it}(\xi_s) \leq M (1 - \phi^1_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \\
+        & d^+_{it}(\xi_s) \leq M \phi^2_{it}(\xi_s), \quad d^-_{it}(\xi_s) \leq M (1 - \phi^2_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \\
+        & y^+_{it}(\xi_s) \leq M \phi^3_{it}(\xi_s), \quad d^-_{it}(\xi_s) \leq M (1 - \phi^3_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \\
+        & y^-_{it}(\xi_s) \leq M \phi^4_{it}(\xi_s), \quad d^+_{it}(\xi_s) \leq M (1 - \phi^4_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \\
+        & y^-_{it}(\xi_s) \leq M \phi^5_{it}(\xi_s), \quad z^C_{it}(\xi_s) \leq M (1 - \phi^5_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S \\
+        & d^-_{it}(\xi_s) \leq M \phi^6_{it}(\xi_s), \quad z^C_{it}(\xi_s) \leq M (1 - \phi^6_{it}(\xi_s)) & \forall i \in I, t \in T, s \in S 
+    \end{align}
+\end{subequations}
+
+\subsection{Individual Replay}
+
+\begin{subequations}
+    \begin{align} 
+        \text{for each i:} \notag\\
+        \text{max} \quad &\sum_{t\in T}\left(P_t^{DA} x_{t} + \frac{1}{S}\sum_{s \in S}\left(P_t^{RT}(\xi_s)  y^+_{t}(\xi_s) - P_t^{PN}(\xi_s) y^-_{t}(\xi_s)\right) \right)+ \sum_{s \in S} \sum_{t \in T} \lambda_{t}(\xi_s) \left( d^-_{t}(\xi_s) - d^+_{t}(\xi_s) \right)& \\
+        \text{s.t.} \quad 
+        & R_{t}(\xi_s) - x_{t} = y_{t}^{+}(\xi_s) - y_{t}^{-}(\xi_s) + d^+_{t}(\xi_s) - d^-_{t}(\xi_s) + z^C_{t}(\xi_s) - z^D_{t}(\xi_s) & \forall t \in T, s \in S\\
+        & R_{t}(\xi_s) + z^D_{t}(\xi_s) \geq y^+_{t}(\xi_s) + d^+_{t}(\xi_s) + z^C_{t}(\xi_s) & \forall t \in T, s \in S\\
+        & z_{t+1}(\xi_s) = z_{t}(\xi_s) + \eta^C z^C_{t}(\xi_s) - \frac{1}{\eta^D} z^D_{t}(\xi_s) & \forall t \in T, s \in S \\
+        & z^D_{t}(\xi_s) \le z_{t}(\xi_s), \quad z^C_{t}(\xi_s) \le K - z_{t}(\xi_s), \quad 0 \leq z_{t}(\xi_s) \leq K & \forall t \in T, s \in S\\
+        & y^+_{t}(\xi_s) \leq M \phi^1_{t}(\xi_s), \quad y^-_{t}(\xi_s) \leq M (1 - \phi^1_{t}(\xi_s)) & \forall t \in T, s \in S \\
+        & d^+_{t}(\xi_s) \leq M \phi^2_{t}(\xi_s), \quad d^-_{t}(\xi_s) \leq M (1 - \phi^2_{t}(\xi_s)) & \forall t \in T, s \in S \\
+        & y^+_{t}(\xi_s) \leq M \phi^3_{t}(\xi_s), \quad d^-_{t}(\xi_s) \leq M (1 - \phi^3_{t}(\xi_s)) & \forall t \in T, s \in S \\
+        & y^-_{t}(\xi_s) \leq M \phi^4_{t}(\xi_s), \quad d^+_{t}(\xi_s) \leq M (1 - \phi^4_{t}(\xi_s)) & \forall t \in T, s \in S \\
+        & y^-_{t}(\xi_s) \leq M \phi^5_{t}(\xi_s), \quad z^C_{t}(\xi_s) \leq M (1 - \phi^5_{t}(\xi_s)) & \forall t \in T, s \in S \\
+        & d^-_{t}(\xi_s) \leq M \phi^6_{t}(\xi_s), \quad z^C_{t}(\xi_s) \leq M (1 - \phi^6_{t}(\xi_s)) & \forall t \in T, s \in S 
+    \end{align}
 \end{subequations}
 
 % \subsection{Settlement}

@@ -74,7 +74,7 @@ def load_generation_data(include_files = None, date_filter = None):
 
     return generation_data, I, T
 
-def load_price_data(P_RT, scale_da=1.3, scale_penalty=1.5, region="N.Y.C."):
+def load_price_data(P_RT, scale_da=1.4, scale_penalty=2, region="N.Y.C."):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
     ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour
@@ -103,7 +103,7 @@ def generate_rt_scenarios(S, randomness_level, random_seed):
     noise_ranges = {
         "low": (0.95, 1.05),
         "medium": (0.85, 1.15),
-        "high": (0.7, 1.3),
+        "high": (0.65, 1.35),
     }
 
     if randomness_level not in noise_ranges:
@@ -132,7 +132,7 @@ def generate_randomized_generation(I, T, S, data, randomness_level, random_seed)
     noise_factors = np.random.uniform(low, high, size=(I, T, S))
 
     generation_r = np.expand_dims(data, axis=-1) * noise_factors
-    generation_r = np.round(generation_r).astype(int)
+    # generation_r = np.round(generation_r).astype(int)
     
     print(f"📊 데이터 Shape: I={I}, T={T}, S={S}")
     return generation_r

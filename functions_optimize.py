@@ -87,12 +87,12 @@ def optimize_individually_forall(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1):
 # Holistic Model (including all DERs)
 def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     set = gp.Model("set")
-    set.setParam("MIPGap", 1e-4)
-    set.setParam("OutputFlag", 0)
+    set.setParam("MIPGap", 1e-6)
+    # set.setParam("OutputFlag", 0)
 
     x_hol = set.addVars(I, T, vtype=GRB.CONTINUOUS, lb=0, name="x")
-    ep_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="e_plus")
-    em_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, name="e_minus")
+    ep_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="e_plus")
+    em_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="e_minus")
 
     yp_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_plus")
     ym_hol = set.addVars(I, T, S, vtype=GRB.CONTINUOUS, lb=0, name="y_minus")
@@ -131,8 +131,8 @@ def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     for i, t, s in product(range(I), range(T), range(S)):
         set.addConstr(ep_hol[i, t, s] == yp_hol[i, t, s] - gp.quicksum(d_hol[i, j, t, s] for j in range(I)))
         set.addConstr(em_hol[i, t, s] == ym_hol[i, t, s] - gp.quicksum(d_hol[j, i, t, s] for j in range(I)))
-        set.addConstr(gp.quicksum(ep_hol[i, t, s] for i in range(I)) <= M2 * p4_hol[i, t, s])
-        set.addConstr(gp.quicksum(em_hol[i, t, s] for i in range(I)) <= M2 * (1 - p4_hol[i, t, s]))
+        # set.addConstr(gp.quicksum(ep_hol[i, t, s] for i in range(I)) <= M2 * p4_hol[i, t, s])
+        # set.addConstr(gp.quicksum(em_hol[i, t, s] for i in range(I)) <= M2 * (1 - p4_hol[i, t, s]))
         set.addConstr(d_hol[i, i, t, s] == 0)
 
     set.optimize()
@@ -146,7 +146,7 @@ def optimize_hol(R, K, K0, P_DA, P_RT, P_PN, I, T, S, M1, M2):
     a_hol = np.sum(x_hol, axis=0)
     yp_hol = np.array([[[yp_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)]) 
     ym_hol = np.array([[[ym_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)])
-    z_hol = np.array([[[z_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)])
+    z_hol = np.array([[[z_hol[i, t, s].X for s in range(S)] for t in range(T+1)] for i in range(I)])
     zc_hol = np.array([[[zc_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)])
     zd_hol = np.array([[[zd_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)])
     ep_hol = np.array([[[ep_hol[i, t, s].X for s in range(S)] for t in range(T)] for i in range(I)])
