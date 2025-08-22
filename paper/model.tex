@@ -315,9 +315,33 @@
     \end{align}
 \end{subequations}
 
+\newpage
+\section{Linear Decision Rule}
+
+\subsection{No Arbitrage Control}
+\begin{subequations}
+    \begin{align}
+        \text{max} \quad &\sum_{i\in I}\sum_{t\in T}\left(P_t^{DA} \cdot x_{it} + \frac{1}{S}\sum_{s \in S}\left(P_t^{RT}(\xi_s) \cdot y^+_{it}(\xi_s) - P_t^{PN}(\xi_s) \cdot y^-_{it}(\xi_s)\right) \right) \\   
+        \text{s.t.} \quad 
+        & R_{it}(\xi_s) - x_{it} = y_{it}^{+}(\xi_s) - y_{it}^{-}(\xi_s) + d^+_{it}(\xi_s) - d^-_{it}(\xi_s) + z^C_{it}(\xi_s) - z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & R_{it}(\xi_s) + z^D_{it}(\xi_s) \geq y^+_{it}(\xi_s) + d^+_{it}(\xi_s) + z^C_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & z_{i,t+1}(\xi_s) = z_{it}(\xi_s) + \eta^C z^C_{it}(\xi_s) - \frac{1}{\eta^D} z^D_{it}(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & z^D_{it}(\xi_s) \le z_{it}(\xi_s), \quad z^C_{it}(\xi_s) \le K_i - z_{it}(\xi_s), \quad 0 \leq z_{it}(\xi_s) \leq K_i & \forall i \in I, t \in T, s \in S \\
+        & \sum_{i \in I} d^+_{it}(\xi_s) = \sum_{i \in I} d^-_{it}(\xi_s) \quad : \quad \lambda_t(\xi_s) & \forall t \in T, s \in S \\
+        & y^+_{it}(\xi_s) = y^+_{it,0} + y^+_{it,R} \cdot R_{it}(\xi_s) + y^+_{it,RT} \cdot P^{RT}_t(\xi_s) + y^+_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & y^-_{it}(\xi_s) = y^-_{it,0} + y^-_{it,R} \cdot R_{it}(\xi_s) + y^-_{it,RT} \cdot P^{RT}_t(\xi_s) + y^-_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & d^+_{it}(\xi_s) = d^+_{it,0} + d^+_{it,R} \cdot R_{it}(\xi_s) + d^+_{it,RT} \cdot P^{RT}_t(\xi_s) + d^+_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & d^-_{it}(\xi_s) = d^-_{it,0} + d^-_{it,R} \cdot R_{it}(\xi_s) + d^-_{it,RT} \cdot P^{RT}_t(\xi_s) + d^-_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & z^C_{it}(\xi_s) = z^C_{it,0} + z^C_{it,R} \cdot R_{it}(\xi_s) + z^C_{it,RT} \cdot P^{RT}_t(\xi_s) + z^C_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S \\
+        & z^D_{it}(\xi_s) = z^D_{it,0} + z^D_{it,R} \cdot R_{it}(\xi_s) + z^D_{it,RT} \cdot P^{RT}_t(\xi_s) + z^D_{it,PN} \cdot P^{PN}_t(\xi_s) & \forall i \in I, t \in T, s \in S
+    \end{align}
+\end{subequations}
+
+\subsection{dd}
+
 % \subsection{Settlement}
 % \begin{subequations}
-%     \small
+%     \smalls
 %     \begin{align*}
 %     \text{max} \quad &\sum_{t\in T}\left(P_t^{DA}\alpha_t + \mathbb{E}\left[P_t^{RT}(\xi)\beta_{t}^{+}(\xi) - P_t^{PN}\beta_{t}^{-}(\xi))\right]\right)&\\   
 %     &&\\
