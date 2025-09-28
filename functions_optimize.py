@@ -32,7 +32,7 @@ def optimize_individually(R, K, K0, P_DA, P_RT, P_PN, T, S, M1, target_i):
     for t, s in product(range(T), range(S)):
         only.addConstr(R[target_i, t, s] - x_ind[t] == yp_ind[t, s] - ym_ind[t, s] + zc_ind[t, s] - zd_ind[t, s])
         only.addConstr(yp_ind[t, s] <= R[target_i, t, s])
-        only.addConstr(z_ind[t + 1, s] == z_ind[t, s] + zc_ind[t, s] - zd_ind[t, s])
+        only.addConstr(z_ind[t + 1, s] == z_ind[t, s] + 0.9 * zc_ind[t, s] - zd_ind[t, s] / 0.9)
         only.addConstr(zd_ind[t, s] <= z_ind[t, s])
         only.addConstr(zc_ind[t, s] <= K[target_i] - z_ind[t, s])
         only.addConstr(yp_ind[t, s] <= M1 * rho[t, s])
