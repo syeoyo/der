@@ -9,22 +9,27 @@ from itertools import product
 def load_parameters(I, T, generation_data, S, randomness_level, random_seed):
     R = generate_randomized_generation(I, T, S, generation_data, randomness_level, random_seed)
     P_RT = generate_rt_scenarios(S, randomness_level, random_seed)
-    K = np.full(I, 100)
+
+    peak_generations = np.mean(generation_data, axis=1)
+    storage_hours_factor = 2
+    K = peak_generations * storage_hours_factor
+    K = (K // 100) * 100
+
     K0 = np.full(I, 0)
     M1 = np.maximum(R, K[:, None, None]).max()
     M2 = max(R.sum(axis=0).max(), K.sum())
+    CRATE = K/4
+    DRATE = K/4
 
     print(f"✅ 시뮬레이션 초기화 완료: S={S}, Randomness='{randomness_level}', Random Seed={random_seed}, M1={M1:.2f}, M2={M2:.2f}")
-    return R, P_RT, K, K0, M1, M2
+    print(f"   - 개별 K 값: {K}")
+
+    return R, P_RT, K, K0, M1, M2, CRATE, DRATE
 
 def load_generation_data(include_files = None, date_filter = None):
     if include_files is None:
-        # include_files = ['1201.csv', '89.csv']
-        # include_files = ['1201.csv', '401.csv', '89.csv']
-        # include_files = ['1201.csv', '137.csv', '514.csv', '397.csv']
-        # include_files = ['1201.csv', '137.csv', '401.csv', '524.csv', '89.csv']
-        include_files = ['1201.csv', '137.csv', '281.csv', '397.csv', '401.csv', '430.csv', '514.csv', '524.csv', '775.csv', '89.csv']        
-    data_dir = "/Users/jangseohyun/SynologyDrive/workspace/symply/DER/data/generation"
+        include_files = ['545.csv', '665.csv', '690.csv','1033.csv','1818.csv','2502.csv','2503.csv','2634.csv','2698.csv','2816.csv']        
+    data_dir = '/Users/jangseohyun/SynologyDrive/workspace/symply/DER/data/generation'
     all_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.csv')])
 
     if include_files is not None:
@@ -74,7 +79,7 @@ def load_generation_data(include_files = None, date_filter = None):
 
     return generation_data, I, T
 
-def load_price_data(P_RT, scale_da=1.4, scale_penalty=2, region="N.Y.C."):
+def load_price_data(P_RT, scale_da=1.3, scale_penalty=2, region="MHK VL"):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
     ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour
@@ -87,7 +92,7 @@ def load_price_data(P_RT, scale_da=1.4, scale_penalty=2, region="N.Y.C."):
 def generate_rt_scenarios(S, randomness_level, random_seed):
     ny_rt = pd.read_csv("data/price/20220718rt.csv")
     ny_rt["Time Stamp"] = pd.to_datetime(ny_rt["Time Stamp"])
-    nyc_rt = ny_rt[ny_rt["Name"] == "N.Y.C."].copy() 
+    nyc_rt = ny_rt[ny_rt["Name"] == "MHK VL"].copy() 
 
     start_of_day = nyc_rt["Time Stamp"].min().floor("D")
     end_of_day = start_of_day + pd.Timedelta(hours=23)
@@ -175,33 +180,37 @@ def plot_scenarios_for_generator(R, i):
     S = R.shape[2] 
     hours = np.arange(T) 
 
-    plt.figure(figsize=(15, 9))
+    plt.figure(figsize=(10,5))
 
     for s in range(S):
-        plt.plot(hours, R[i, :, s], linestyle='-', alpha=0.6, label=f'Scenario {s+1}')
+        plt.plot(hours, R[i, :, s], linestyle='-', alpha=0.3)
+    mean_curve = np.mean(R[i, :, :], axis=1)
+    plt.plot(hours, mean_curve, color='#4471C4', linewidth=3, label="Original Data")
 
-    plt.xlabel("Hour")
-    plt.ylabel("Electricity Generated (kWh)")
-    plt.title(f"Hourly Electricity Generation for Generator {i} Across All Scenarios")
+    plt.xlabel("Hour", fontsize=14)
+    plt.ylabel("Electricity Generated (kWh)", fontsize=14)
     plt.xticks(hours)
-    plt.legend(loc="upper left", fontsize='small', ncol=2)
+    plt.legend(loc="upper left", fontsize=14)
+    plt.tight_layout()
     plt.show()
 
 def plot_rt_scenarios(P_RT):
     T, S = P_RT.shape
     hours = np.arange(T)
 
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(10,5))
 
     for s in range(S):
-        plt.plot(hours, P_RT[:, s], linestyle='-', alpha=0.6, label=f"Scenario {s+1}")
+        plt.plot(hours, P_RT[:, s], linestyle='-', alpha=0.3)
 
-    plt.xlabel("Hour")
-    plt.ylabel("Price ($/MWHr)")
-    plt.title("Real-Time Price Scenarios (Hourly Averaged)")
+    mean_curve = np.mean(P_RT, axis=1)
+    plt.plot(hours, mean_curve, color='#4471C4', linewidth=3, label="Original Data")
+
+    plt.xlabel("Hour", fontsize=14)
+    plt.ylabel("Price ($/MWHr)", fontsize=14)
     plt.xticks(hours)
-    plt.legend(loc="upper left", fontsize="small", ncol=2)
-
+    plt.legend(loc="upper left", fontsize=14)
+    plt.tight_layout()
     plt.show()
 
 # 시간별로 정규화
