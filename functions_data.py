@@ -99,7 +99,7 @@ def load_generation_data(include_files=None, date_filter=None):
     return generation_data, I, T
 
 
-def load_price_data(P_RT, scale_da=1.3, scale_penalty=2, region="MHK VL"):
+def load_price_data(P_RT, scale_da=1.5, scale_penalty=2, region="MHK VL"):
     ny_da = pd.read_csv("data/price/20220718da.csv")
     ny_da["Time Stamp"] = pd.to_datetime(ny_da["Time Stamp"])
     ny_da["Hour"] = pd.Series(ny_da["Time Stamp"]).dt.hour
@@ -131,7 +131,7 @@ def generate_rt_scenarios(S, randomness_level, random_seed):
     noise_ranges = {
         "low": (0.95, 1.05),
         "medium": (0.85, 1.15),
-        "high": (0.5, 1.5),
+        "high": (0.4, 1.6),
     }
 
     if randomness_level not in noise_ranges:
@@ -227,10 +227,10 @@ def plot_rt_scenarios(P_RT):
     plt.figure(figsize=(10, 5))
 
     for s in range(S):
-        plt.plot(hours, P_RT[:, s], linestyle="-", alpha=0.3)
+        plt.plot(hours, P_RT[:, s], linestyle="-", alpha=0.1)
 
     mean_curve = np.mean(P_RT, axis=1)
-    plt.plot(hours, mean_curve, color="#4471C4", linewidth=3, label="Original Data")
+    plt.plot(hours, mean_curve, color="#142755", linewidth=3.5, label="Original Data")
 
     plt.xlabel("Hour", fontsize=14)
     plt.ylabel("Price ($/MWh)", fontsize=14)
@@ -249,9 +249,9 @@ def plot_scenarios_for_generator(R, i):
     plt.figure(figsize=(10, 5))
 
     for s in range(S):
-        plt.plot(hours, R[i, :, s] * 1000, linestyle="-", alpha=0.3)
+        plt.plot(hours, R[i, :, s] * 1000, linestyle="-", alpha=0.1)
     mean_curve = np.mean(R[i, :, :] * 1000, axis=1)
-    plt.plot(hours, mean_curve, color="#4471C4", linewidth=3, label="Original Data")
+    plt.plot(hours, mean_curve, color="#142755", linewidth=3.5, label="Original Data")
 
     plt.xlabel("Hour", fontsize=14)
     plt.ylabel("Electricity Generated (kW)", fontsize=14)
